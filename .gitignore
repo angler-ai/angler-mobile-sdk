@@ -25,9 +25,9 @@ node_modules/
 .flutter-plugins-dependencies
 pubspec.lock
 
-# Swift core copied into the wrappers at build/pack time (see plans 05 and 06)
+# Swift core copied into the wrappers at build/pack time (see plans 05 and 06).
+# The Flutter copy is ignored in flutter/.gitignore so flutter/.pubignore can override it.
 react-native/ios/vendor/
-flutter/ios/Classes/vendor/
 
 # Example app local credentials
 examples/ios/Local.xcconfig

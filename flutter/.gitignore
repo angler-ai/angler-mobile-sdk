@@ -1,0 +1,3 @@
+# Swift core copied in by scripts/sync_native.sh. Kept out of git, but shipped to pub.dev:
+# flutter/.pubignore (which pub uses instead of this file) doesn't list it.
+ios/Classes/vendor/
