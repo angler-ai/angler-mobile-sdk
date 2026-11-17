@@ -63,8 +63,8 @@ Angler.reset()                                          // e.g. on logout: new i
 
 ## What gets sent
 
-See [the design doc](../docs/superpowers/specs/2026-11-17-mobile-sdk-design.md) §5. Two
-behaviours to know about:
+The payload format is pinned by the shared fixtures in [`spec/`](../spec). Two behaviours to
+know about:
 
 - **The whole deep-link URL is sent** as `url` on every event until the app has been in the
   background for 30 minutes. Don't pass URLs that carry secrets (OAuth `code`, magic-link or
