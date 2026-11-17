@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "name": "attempt_1_r_0",
+      "input": {
+        "attempt": 1,
+        "r": 0
+      },
+      "expected": 0.5
+    },
+    {
+      "name": "attempt_1_r_0_5",
+      "input": {
+        "attempt": 1,
+        "r": 0.5
+      },
+      "expected": 0.75
+    },
+    {
+      "name": "attempt_2_r_0",
+      "input": {
+        "attempt": 2,
+        "r": 0
+      },
+      "expected": 1
+    },
+    {
+      "name": "attempt_3_r_0_5",
+      "input": {
+        "attempt": 3,
+        "r": 0.5
+      },
+      "expected": 3
+    },
+    {
+      "name": "attempt_9_r_0",
+      "input": {
+        "attempt": 9,
+        "r": 0
+      },
+      "expected": 128
+    },
+    {
+      "name": "attempt_10_r_0",
+      "input": {
+        "attempt": 10,
+        "r": 0
+      },
+      "expected": 150
+    },
+    {
+      "name": "attempt_20_r_0_5",
+      "input": {
+        "attempt": 20,
+        "r": 0.5
+      },
+      "expected": 225
+    }
+  ]
+}

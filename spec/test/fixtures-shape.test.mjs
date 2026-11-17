@@ -18,3 +18,25 @@ for (const file of ['deeplinks', 'install-referrer']) {
     }
   });
 }
+
+const DECISIONS = ['remove', 'isolate', 'drop', 'split', 'pause', 'retry'];
+
+test('response-policy cases are well-formed', () => {
+  const { cases } = loadFixture('response-policy');
+  assertUniqueSnakeNames(cases);
+  for (const c of cases) {
+    assert.ok(c.input.status === null || Number.isInteger(c.input.status), c.name);
+    assert.ok(Number.isInteger(c.input.batchSize) && c.input.batchSize >= 1, c.name);
+    assert.ok(DECISIONS.includes(c.expected), `${c.name}: ${c.expected}`);
+  }
+});
+
+test('backoff cases match the formula', () => {
+  const { cases } = loadFixture('backoff');
+  assertUniqueSnakeNames(cases);
+  for (const c of cases) {
+    const { attempt, r } = c.input;
+    const want = Math.min(300, 2 ** (attempt - 1)) * (0.5 + 0.5 * r);
+    assert.ok(Math.abs(c.expected - want) < 1e-9, `${c.name}: ${c.expected} != ${want}`);
+  }
+});
