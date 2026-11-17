@@ -31,7 +31,10 @@ class MainActivity : Activity() {
         layout.addView(status)
         setContentView(layout)
 
-        handle(intent)
+        // Only a fresh launch carries a new link: a restored activity, or one relaunched from
+        // Recents, still has the original intent.
+        val fromHistory = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+        if (savedInstanceState == null && !fromHistory) handle(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
