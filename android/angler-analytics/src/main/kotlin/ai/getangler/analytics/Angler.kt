@@ -16,7 +16,10 @@ import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
 
-/** The Angler app SDK. Every method is safe to call from any thread and never throws. */
+/**
+ * The Angler app SDK. Every method is safe to call from any thread and never throws. Parameters
+ * are nullable for Java callers: a null where a value is required is ignored with a warning.
+ */
 object Angler {
     private val lock = Any()
     private var core: AnglerCore? = null
@@ -29,7 +32,11 @@ object Angler {
 
     /** Starts the SDK. Call once at launch, e.g. in `Application.onCreate`; repeat calls with the same workspace do nothing. */
     @JvmStatic
-    fun configure(context: Context, configuration: AnglerConfiguration) {
+    fun configure(context: Context?, configuration: AnglerConfiguration?) {
+        if (context == null || configuration == null) {
+            Log.warning("configure: context and configuration are required; ignored")
+            return
+        }
         val replay: List<(AnglerCore) -> Unit>
         val c = synchronized(lock) {
             val existing = core
@@ -53,7 +60,11 @@ object Angler {
      */
     @JvmStatic
     @JvmOverloads
-    fun track(name: String, data: Map<String, Any?>? = null, properties: Map<String, String>? = null, eventId: String? = null) {
+    fun track(name: String?, data: Map<String, Any?>? = null, properties: Map<String, String>? = null, eventId: String? = null) {
+        if (name == null) {
+            Log.warning("track: event name is null; dropped")
+            return
+        }
         val c = synchronized(lock) { core }
         if (c == null) {
             Log.warning("track('$name') dropped: call Angler.configure first")
@@ -64,11 +75,14 @@ object Angler {
 
     /** Captures click IDs and the session URL. Works before [configure]. */
     @JvmStatic
-    fun handleDeepLink(uri: Uri) = handleDeepLink(uri.toString())
+    fun handleDeepLink(uri: Uri?) = handleDeepLink(uri?.toString())
 
     /** Like [handleDeepLink], for URL strings. */
     @JvmStatic
-    fun handleDeepLink(url: String) = withCore { it.handleDeepLink(url) }
+    fun handleDeepLink(url: String?) {
+        if (url == null) return
+        withCore { it.handleDeepLink(url) }
+    }
 
     /** Sets the `customer_id` identifier; null clears it. */
     @JvmStatic
@@ -76,7 +90,10 @@ object Angler {
 
     /** Sets a custom identifier such as `appsflyer_id`; null removes it. Reserved names are ignored. */
     @JvmStatic
-    fun setIdentifier(name: String, value: String?) = withCore { it.setIdentifier(name, value) }
+    fun setIdentifier(name: String?, value: String?) {
+        if (name == null) return Log.warning("setIdentifier: name is null; ignored")
+        withCore { it.setIdentifier(name, value) }
+    }
 
     /** Sent as `application_tracking_enabled` (default true). */
     @JvmStatic

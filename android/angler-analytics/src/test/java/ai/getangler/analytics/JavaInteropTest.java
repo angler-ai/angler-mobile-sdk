@@ -33,4 +33,14 @@ public class JavaInteropTest {
         Angler.flush();
         Angler.reset();
     }
+
+    @Test
+    public void nullsFromJavaNeverThrow() {
+        Angler.track(null);
+        Angler.track(null, null, null, null);
+        Angler.handleDeepLink((String) null);
+        Angler.handleDeepLink((android.net.Uri) null);
+        Angler.setIdentifier(null, "x");
+        Angler.configure(null, null);
+    }
 }

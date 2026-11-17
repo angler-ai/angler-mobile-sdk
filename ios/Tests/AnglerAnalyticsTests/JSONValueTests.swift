@@ -24,3 +24,21 @@ final class JSONValueTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(JSONValue.self, from: v.encoded()), v)
     }
 }
+
+final class JSONValueDepthTests: XCTestCase {
+    func testSelfReferencingDictionaryDoesNotOverflow() {
+        let d = NSMutableDictionary()
+        d["a"] = 1
+        d["self"] = d
+        XCTAssertEqual(JSONValue.from(d)?["a"], .number(1))
+    }
+
+    func testDeepNestingBeyondLimitIsDropped() {
+        var deep: Any = "leaf"
+        for _ in 0..<100 { deep = [deep] }
+        var v = JSONValue.from(deep)
+        var depth = 0
+        while case .array(let items)? = v, let first = items.first { v = first; depth += 1 }
+        XCTAssertTrue((1...JSONValue.maxDepth).contains(depth), "depth \(depth)")
+    }
+}

@@ -59,21 +59,26 @@ internal sealed interface JsonValue {
     }
 
     companion object {
+        /** Nesting deeper than this is dropped (also stops a map that contains itself). */
+        const val MAX_DEPTH = 32
+
         /**
          * Converts a Kotlin/Java value. Returns null for values JSON can't represent; such
          * values are dropped from inside lists and maps.
          */
-        fun from(any: Any?): JsonValue? = when (any) {
+        fun from(any: Any?): JsonValue? = from(any, 0)
+
+        private fun from(any: Any?, depth: Int): JsonValue? = when (any) {
             null -> Null
             is JsonValue -> any
             is String -> Str(any)
             is Boolean -> Bool(any)
             is Number -> any.toDouble().takeIf { it.isFinite() }?.let { Num(it) }
-            is Map<*, *> -> Obj(
-                any.entries.mapNotNull { (k, v) -> if (k is String) from(v)?.let { k to it } else null }.toMap()
+            is Map<*, *> -> if (depth >= MAX_DEPTH) null else Obj(
+                any.entries.mapNotNull { (k, v) -> if (k is String) from(v, depth + 1)?.let { k to it } else null }.toMap()
             )
-            is Iterable<*> -> Arr(any.mapNotNull { from(it) })
-            is Array<*> -> Arr(any.mapNotNull { from(it) })
+            is Iterable<*> -> if (depth >= MAX_DEPTH) null else Arr(any.mapNotNull { from(it, depth + 1) })
+            is Array<*> -> if (depth >= MAX_DEPTH) null else Arr(any.mapNotNull { from(it, depth + 1) })
             else -> null
         }
 

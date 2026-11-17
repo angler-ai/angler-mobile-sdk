@@ -75,10 +75,16 @@ internal class AnglerCore(
         // still be pending when track is called) and only changes at a new session.
         val now = clock.nowMillis()
         val generatedId = uuid()
-        val json = data?.let { d ->
-            d.entries.mapNotNull { (k, v) ->
-                JsonValue.from(v)?.let { k to it } ?: run { Log.debug { "dropping data['$k']: not representable as JSON" }; null }
-            }.toMap()
+        // On the caller's thread, so guard it: a map mutated concurrently must not crash the app.
+        val json = try {
+            data?.let { d ->
+                d.entries.mapNotNull { (k, v) ->
+                    JsonValue.from(v)?.let { k to it } ?: run { Log.debug { "dropping data['$k']: not representable as JSON" }; null }
+                }.toMap()
+            }
+        } catch (t: Throwable) {
+            Log.warning("track('$name'): data couldn't be read ($t); sending the event without it")
+            null
         }
         val call = TrackCall(name, json, properties, eventId)
         post { record(call, now, generatedId, adInfo, null) }

@@ -38,3 +38,22 @@ class JsonValueTest {
 
     @Test(expected = IllegalArgumentException::class) fun parseRejectsGarbage() { JsonValue.parse("not json") }
 }
+
+class JsonValueDepthTest {
+    @Test fun selfReferencingMapDoesNotOverflow() {
+        val m = HashMap<String, Any?>()
+        m["a"] = 1
+        m["self"] = m
+        val v = JsonValue.from(m) as JsonValue.Obj
+        assertEquals(JsonValue.Num(1.0), v.fields["a"])
+    }
+
+    @Test fun deepNestingBeyondLimitIsDropped() {
+        var deep: Any = "leaf"
+        repeat(100) { deep = listOf(deep) }
+        var v: JsonValue? = JsonValue.from(deep)
+        var depth = 0
+        while (v is JsonValue.Arr && v.items.isNotEmpty()) { v = v.items[0]; depth++ }
+        org.junit.Assert.assertTrue("depth $depth", depth in 1..JsonValue.MAX_DEPTH)
+    }
+}

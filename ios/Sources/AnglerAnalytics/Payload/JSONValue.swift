@@ -12,7 +12,12 @@ enum JSONValue: Codable, Equatable {
 
     /// Converts a Foundation value. Returns nil for values JSON can't represent;
     /// such values are dropped from inside arrays and objects.
-    static func from(_ any: Any) -> JSONValue? {
+    /// Nesting deeper than this is dropped (also stops a dictionary that contains itself).
+    static let maxDepth = 32
+
+    static func from(_ any: Any) -> JSONValue? { from(any, depth: 0) }
+
+    private static func from(_ any: Any, depth: Int) -> JSONValue? {
         switch any {
         case let v as JSONValue:
             return v
@@ -25,10 +30,12 @@ enum JSONValue: Codable, Equatable {
         case is NSNull:
             return .null
         case let a as [Any]:
-            return .array(a.compactMap { from($0) })
+            guard depth < maxDepth else { return nil }
+            return .array(a.compactMap { from($0, depth: depth + 1) })
         case let o as [String: Any]:
+            guard depth < maxDepth else { return nil }
             var out: [String: JSONValue] = [:]
-            for (k, v) in o { if let j = from(v) { out[k] = j } }
+            for (k, v) in o { if let j = from(v, depth: depth + 1) { out[k] = j } }
             return .object(out)
         default:
             // Optional.none boxed in Any
