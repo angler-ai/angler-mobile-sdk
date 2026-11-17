@@ -58,11 +58,12 @@ final class IdentityStore {
         set { store.set(newValue ? "1" : "0", for: Key.appTracking) }
     }
 
-    /// Clears the user ID and custom identifiers and rotates the `aid`.
+    /// Clears the user ID and custom identifiers and rotates the `aid`. Before the first
+    /// `aid` exists there is nothing to rotate, so a later first launch is still an install.
     func reset() {
         store.set(nil, for: Key.customerId)
         store.set(nil, for: Key.custom)
-        store.set(Self.newAid(), for: Key.aid)
+        if store.string(Key.aid) != nil { store.set(Self.newAid(), for: Key.aid) }
     }
 
     private func writeCustom(_ ids: [String: String]) {
