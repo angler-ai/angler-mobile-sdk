@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Swift / Xcode
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+
+# Node / React Native
+node_modules/
+*.tgz
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+
+# Swift core copied into the wrappers at build/pack time (see plans 05 and 06)
+react-native/ios/vendor/
+flutter/ios/Classes/vendor/
