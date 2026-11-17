@@ -19,3 +19,11 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// The Angler core from `cd ../../../android && ./gradlew publishToMavenLocal`, until a release is
+// on Maven Central.
+allprojects {
+    repositories {
+        mavenLocal()
+    }
+}

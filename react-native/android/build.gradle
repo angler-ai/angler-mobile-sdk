@@ -34,12 +34,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        // React Native 0.76 builds with Java 17.
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     sourceSets {
@@ -52,7 +53,6 @@ android {
 repositories {
     mavenCentral()
     google()
-    mavenLocal()
 }
 
 dependencies {

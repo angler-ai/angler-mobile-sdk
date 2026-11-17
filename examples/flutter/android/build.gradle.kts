@@ -2,6 +2,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // The Angler core from `cd ../../android && ./gradlew publishToMavenLocal`, until a
+        // release is on Maven Central.
+        mavenLocal()
     }
 }
 
