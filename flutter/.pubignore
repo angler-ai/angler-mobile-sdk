@@ -1,0 +1,9 @@
+# pub uses this file instead of .gitignore. It must NOT exclude ios/Classes/vendor/: the
+# copied Swift core (scripts/sync_native.sh) has to ship in the package.
+.dart_tool/
+build/
+pubspec.lock
+android/.gradle/
+android/build/
+test/
+scripts/
