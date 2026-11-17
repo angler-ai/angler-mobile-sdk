@@ -72,7 +72,12 @@ public enum Angler {
 
     /// Starts the SDK. Call once at launch; repeat calls with the same workspace do nothing.
     public static func configure(_ configuration: AnglerConfiguration) {
-        DeviceContext.captureScreenIfOnMain()
+        // UIKit is main-thread only: read the screen size there (now, or soon if called elsewhere).
+        if Thread.isMainThread {
+            DeviceContext.captureScreenIfOnMain()
+        } else {
+            DispatchQueue.main.async { DeviceContext.captureScreenIfOnMain() }
+        }
         core.configure(configuration)
     }
 

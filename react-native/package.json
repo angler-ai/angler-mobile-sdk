@@ -18,7 +18,8 @@
     "!android/.gradle"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "jest && node --test scripts/__tests__/",
+    "prepack": "node scripts/sync-native.mjs",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
