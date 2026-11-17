@@ -184,6 +184,10 @@ final class AnglerCore {
         queue.async { self.record(call, at: now, generatedId: generatedId, idfa: ad.idfa, authorized: ad.authorized) }
     }
 
+    func track(_ event: AnglerEvent, data: AnglerData? = nil, properties: [String: String]? = nil, eventId: String? = nil) {
+        track(event.name, data: data?.jsonObject, properties: properties, eventId: eventId)
+    }
+
     func handleDeepLink(urlString: String) {
         queue.async {
             guard self.identity.isEnabled else { return }

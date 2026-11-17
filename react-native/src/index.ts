@@ -1,5 +1,8 @@
 import { Linking } from 'react-native';
 import NativeAnglerAnalytics, { type Spec } from './NativeAnglerAnalytics';
+import type { AnglerData, AnglerEventName } from './models.generated';
+
+export * from './models.generated';
 
 export type AnglerConfig = {
   workspaceId: string;
@@ -19,7 +22,8 @@ export type AnglerConfig = {
 };
 
 export type TrackOptions = {
-  data?: Record<string, unknown>;
+  /** The event's data objects (cart, cartLine, checkout, …), typed from data-api's schema. */
+  data?: AnglerData;
   properties?: Record<string, string>;
   eventId?: string;
 };
@@ -93,8 +97,11 @@ export const Angler = {
     }
   },
 
-  /** Queues an event. Unknown names are sent as `custom_event`. */
-  track(name: string, options?: TrackOptions): void {
+  /**
+   * Queues an event: a standard name (`AnglerEvent.productAddedToCart`) or any other string, which
+   * is sent as a `custom_event`.
+   */
+  track(name: AnglerEventName, options?: TrackOptions): void {
     try {
       const { data, properties, eventId } = options ?? {};
       const dataJson = data && Object.keys(data).length > 0 ? toJson(data, 'data') : null;

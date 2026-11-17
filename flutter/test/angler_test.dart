@@ -38,7 +38,7 @@ void main() {
   });
 
   test('track encodes data and properties as JSON', () async {
-    await Angler.track('product_viewed', data: {'productVariant': {'id': 'v1'}}, properties: {'a': '1'});
+    await Angler.trackJson('product_viewed', data: {'productVariant': {'id': 'v1'}}, properties: {'a': '1'});
     expect(calls.single.method, 'track');
     expect(calls.single.arguments, {
       'name': 'product_viewed',
@@ -49,12 +49,12 @@ void main() {
   });
 
   test('track without data or properties sends nulls', () async {
-    await Angler.track('purchase', eventId: 'order-1');
+    await Angler.trackJson('purchase', eventId: 'order-1');
     expect(calls.single.arguments, {'name': 'purchase', 'dataJson': null, 'propertiesJson': null, 'eventId': 'order-1'});
   });
 
   test('unencodable data is dropped, event still sent', () async {
-    await Angler.track('x', data: {'when': DateTime(2026)});
+    await Angler.trackJson('x', data: {'when': DateTime(2026)});
     expect(calls.single.arguments['dataJson'], isNull);
     expect(calls.single.arguments['name'], 'x');
   });
@@ -83,7 +83,7 @@ void main() {
       throw PlatformException(code: 'boom');
     });
     await expectLater(Angler.flush(), completes);
-    await expectLater(Angler.track('x'), completes);
+    await expectLater(Angler.trackJson('x'), completes);
   });
 
   test('MissingPluginException is swallowed', () async {

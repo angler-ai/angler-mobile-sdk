@@ -20,10 +20,25 @@ import AnglerAnalytics
 // In App.init() or application(_:didFinishLaunchingWithOptions:)
 Angler.configure(AnglerConfiguration(workspaceId: "<workspace id>", token: "<workspace token>"))
 
+// Standard events, with typed data objects (generated from data-api's schema)
+Angler.track(.productAddedToCart, data: AnglerData(cartLine: AnglerCartLine(
+    merchandise: AnglerProductVariant(id: "variant-1", price: AnglerMoney(amount: 29, currencyCode: "USD")),
+    quantity: 1
+)))
+Angler.track(.checkoutCompleted, data: AnglerData(checkout: AnglerCheckout(
+    currencyCode: "USD", totalPrice: AnglerMoney(amount: 58, currencyCode: "USD")
+)), eventId: "order-123")                                        // your own ID, for deduplication
+
+// Any other name is a custom event; properties become data.customData
+Angler.track(.custom("level_up"), properties: ["level": "2"])
+
+// Untyped form: a string name and a dictionary with the same keys as AnglerData
 Angler.track("product_viewed", data: ["productVariant": ["id": "variant-1"]])
-Angler.track("level_up", properties: ["level": "2"])          // non-standard name → custom_event
-Angler.track("checkout_completed", eventId: "order-123")       // your own ID, for deduplication
 ```
+
+`AnglerEvent` lists the standard event names. `AnglerData` has one field per data object data-api
+accepts: `cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
+`customer`, `form`, `contacts` and `customData`.
 
 Pass `domain: "dev-data.getangler.ai"` to send to the dev environment. `track` before
 `configure` is dropped with a warning; every other method works before `configure`.

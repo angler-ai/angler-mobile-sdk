@@ -28,17 +28,34 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-await Angler.track('product_viewed', data: {'productVariant': {'id': 'variant-1'}});
-await Angler.track('level_up', properties: {'level': '2'});     // non-standard name → custom_event
-await Angler.track('checkout_completed', eventId: 'order-123');  // your own ID, for deduplication
+// Standard events, with typed data objects (generated from data-api's schema)
+await Angler.track(AnglerEvent.productAddedToCart, data: const AnglerData(
+  cartLine: AnglerCartLine(
+    quantity: 1,
+    merchandise: AnglerProductVariant(id: 'variant-1', price: AnglerMoney(amount: 29, currencyCode: 'USD')),
+  ),
+));
+await Angler.track(AnglerEvent.checkoutCompleted,
+    data: const AnglerData(checkout: AnglerCheckout(currencyCode: 'USD', totalPrice: AnglerMoney(amount: 58, currencyCode: 'USD'))),
+    eventId: 'order-123');                                      // your own ID, for deduplication
+
+// Any other name is a custom event; properties become data.customData
+await Angler.track(const AnglerEvent.custom('level_up'), properties: {'level': '2'});
+
+// Untyped form: a string name and a JSON-like map with the same keys as AnglerData
+await Angler.trackJson('product_viewed', data: {'productVariant': {'id': 'variant-1'}});
 ```
+
+`AnglerEvent` lists the standard event names. `AnglerData` has one field per data object data-api
+accepts: `cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
+`customer`, `form`, `contacts` and `customData`.
 
 Pass `domain: 'dev-data.getangler.ai'` to send to the dev environment. Hot restart re-running
 `configure` is ignored.
 
 No method throws: problems (no plugin on this platform, platform errors) are reported with
-`debugPrint`. `data` that `jsonEncode` can't handle (for example a `DateTime`) is dropped and the
-event is still sent.
+`debugPrint`. With `trackJson`, `data` that `jsonEncode` can't handle (for example a `DateTime`)
+is dropped and the event is still sent.
 
 ## Deep links
 

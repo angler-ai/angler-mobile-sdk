@@ -87,6 +87,16 @@ public enum Angler {
         core.track(name, data: data, properties: properties, eventId: eventId)
     }
 
+    /// Queues a typed event: a standard name (or `.custom("name")`) with typed `data`.
+    ///
+    ///     Angler.track(.productAddedToCart, data: AnglerData(cartLine: AnglerCartLine(
+    ///         merchandise: AnglerProductVariant(id: "variant-1", price: AnglerMoney(amount: 29, currencyCode: "USD")),
+    ///         quantity: 1)))
+    public static func track(_ event: AnglerEvent, data: AnglerData? = nil, properties: [String: String]? = nil,
+                             eventId: String? = nil) {
+        core.track(event, data: data, properties: properties, eventId: eventId)
+    }
+
     /// Captures click IDs and the session URL. Works before `configure`.
     public static func handleDeepLink(_ url: URL) {
         core.handleDeepLink(urlString: url.absoluteString)

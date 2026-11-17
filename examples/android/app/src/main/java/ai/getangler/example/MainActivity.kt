@@ -1,6 +1,10 @@
 package ai.getangler.example
 
 import ai.getangler.analytics.Angler
+import ai.getangler.analytics.AnglerData
+import ai.getangler.analytics.AnglerEvent
+import ai.getangler.analytics.AnglerMoney
+import ai.getangler.analytics.AnglerProductVariant
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -22,9 +26,12 @@ class MainActivity : Activity() {
             layout.addView(Button(this).apply { text = label; setOnClickListener { action(); status.text = label } })
 
         button("Track product_viewed") {
-            Angler.track("product_viewed", mapOf("productVariant" to mapOf("id" to "variant-1", "title" to "Example")))
+            Angler.track(
+                AnglerEvent.ProductViewed,
+                AnglerData(productVariant = AnglerProductVariant(id = "variant-1", title = "Example", price = AnglerMoney(amount = 29, currencyCode = "USD"))),
+            )
         }
-        button("Track custom (level_up)") { Angler.track("level_up", properties = mapOf("level" to "2")) }
+        button("Track custom (level_up)") { Angler.track(AnglerEvent.Custom("level_up"), properties = mapOf("level" to "2")) }
         button("Open deep link (gclid)") { Angler.handleDeepLink("anglerexample://product/1?gclid=example-gclid") }
         button("Flush") { Angler.flush() }
         button("Reset") { Angler.reset() }

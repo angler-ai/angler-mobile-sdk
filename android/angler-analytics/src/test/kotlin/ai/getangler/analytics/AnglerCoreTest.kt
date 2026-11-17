@@ -230,6 +230,21 @@ class AnglerCoreTest {
         assertEquals(ids(e)["aid"], e["client_id"]?.str)
     }
 
+    @Test fun trackTypedEvent() {
+        transport.defaultStatus = null
+        val core = makeCore()
+        core.configure(config())
+        core.track(AnglerEvent.ProductAddedToCart, TypedDataCases.build("cart_line_added"), mapOf("a" to "1"))
+        core.track(AnglerEvent.Custom("level_up"))
+        val events = core.queuedBodies()
+        assertEquals(JsonValue.Str("product_added_to_cart"), events[0]["event_name"])
+        val expected = (Fixtures.load("typed-data").first { it.name == "cart_line_added" }.expected as JsonValue.Obj).fields +
+            ("customData" to JsonValue.Arr(listOf(JsonValue.Obj(mapOf("name" to JsonValue.Str("a"), "value" to JsonValue.Str("1"))))))
+        assertEquals(JsonValue.Obj(expected), events[0]["data"])
+        assertEquals(JsonValue.Str("custom_event"), events[1]["event_name"])
+        assertEquals(JsonValue.Str("level_up"), events[1]["custom_event_name"])
+    }
+
     @Test fun clientIdOverride() {
         transport.defaultStatus = null
         val core = makeCore()

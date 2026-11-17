@@ -77,6 +77,8 @@ jobs:
         run: node scripts/sync-version.mjs --check
       - name: sync-version tests
         run: node --test scripts/test/
+      - name: Typed models match the schema snapshot
+        run: node scripts/generate-models.mjs --check
 
   spec:
     needs: changes

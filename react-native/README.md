@@ -16,16 +16,29 @@ the Maven artifact `ai.getangler:analytics` at the same version.
 ## Configure and track
 
 ```ts
-import { Angler } from '@angler-ai/react-native-analytics';
+import { Angler, AnglerEvent } from '@angler-ai/react-native-analytics';
 
 // Once at startup, e.g. in index.js or your root component's module scope.
 // Calling it again (Fast Refresh) is ignored.
 Angler.configure({ workspaceId: '<workspace id>', token: '<workspace token>' });
 
-Angler.track('product_viewed', { data: { productVariant: { id: 'variant-1' } } });
-Angler.track('level_up', { properties: { level: '2' } });       // non-standard name → custom_event
-Angler.track('checkout_completed', { eventId: 'order-123' });    // your own ID, for deduplication
+// Standard events; `data` is typed (AnglerData, generated from data-api's schema)
+Angler.track(AnglerEvent.productAddedToCart, {
+  data: { cartLine: { quantity: 1, merchandise: { id: 'variant-1', price: { amount: 29, currencyCode: 'USD' } } } },
+});
+Angler.track(AnglerEvent.checkoutCompleted, {
+  data: { checkout: { currencyCode: 'USD', totalPrice: { amount: 58, currencyCode: 'USD' } } },
+  eventId: 'order-123',                                          // your own ID, for deduplication
+});
+
+// Any other string is a custom event; properties become data.customData
+Angler.track('level_up', { properties: { level: '2' } });
 ```
+
+`AnglerEvent` lists the standard event names. `AnglerData` has one field per data object data-api
+accepts (`cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
+`customer`, `form`, `contacts`, `customData`); the nested types (`AnglerCartLine`,
+`AnglerMoney`, …) are exported too.
 
 Options: `domain` (`dev-data.getangler.ai` for testing), `clientId`, `trackLifecycleEvents`,
 `flushAt`, `flushIntervalSeconds`, `maxQueueSize`, `debugLogging`, `autoHandleDeepLinks`.

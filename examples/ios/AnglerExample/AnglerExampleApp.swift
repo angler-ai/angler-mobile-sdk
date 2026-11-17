@@ -29,11 +29,12 @@ struct ContentView: View {
         NavigationView {
             List {
                 Button("Track product_viewed") {
-                    Angler.track("product_viewed", data: ["productVariant": ["id": "variant-1", "title": "Example"]])
+                    Angler.track(.productViewed, data: AnglerData(productVariant: AnglerProductVariant(
+                        id: "variant-1", price: AnglerMoney(amount: 29, currencyCode: "USD"), title: "Example")))
                     status = "Tracked product_viewed"
                 }
                 Button("Track custom (level_up)") {
-                    Angler.track("level_up", properties: ["level": "2"])
+                    Angler.track(.custom("level_up"), properties: ["level": "2"])
                     status = "Tracked level_up"
                 }
                 Button("Open deep link (gclid)") {

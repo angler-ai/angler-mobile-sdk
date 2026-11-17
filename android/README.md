@@ -21,16 +21,35 @@ class MyApp : Application() {
     }
 }
 
+// Standard events, with typed data objects (generated from data-api's schema)
+Angler.track(AnglerEvent.ProductAddedToCart, AnglerData(cartLine = AnglerCartLine(
+    merchandise = AnglerProductVariant(id = "variant-1", price = AnglerMoney(amount = 29, currencyCode = "USD")),
+    quantity = 1,
+)))
+Angler.track(
+    AnglerEvent.CheckoutCompleted,
+    AnglerData(checkout = AnglerCheckout(currencyCode = "USD", totalPrice = AnglerMoney(amount = 58, currencyCode = "USD"))),
+    eventId = "order-123",                                       // your own ID, for deduplication
+)
+
+// Any other name is a custom event; properties become data.customData
+Angler.track(AnglerEvent.Custom("level_up"), properties = mapOf("level" to "2"))
+
+// Untyped form: a string name and a map with the same keys as AnglerData
 Angler.track("product_viewed", mapOf("productVariant" to mapOf("id" to "variant-1")))
-Angler.track("level_up", properties = mapOf("level" to "2"))   // non-standard name → custom_event
-Angler.track("checkout_completed", eventId = "order-123")       // your own ID, for deduplication
 ```
+
+`AnglerEvent` lists the standard event names. `AnglerData` has one field per data object data-api
+accepts: `cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
+`customer`, `form`, `contacts` and `customData`.
 
 From Java:
 
 ```java
 Angler.configure(this, new AnglerConfiguration("<workspace id>", "<workspace token>"));
-Angler.track("product_viewed", data);
+Angler.track(AnglerEvent.ProductViewed.INSTANCE, new AnglerData(null, null, null, null,
+    new AnglerProductVariant("variant-1")));
+Angler.track("product_viewed", dataMap);     // or the untyped form
 ```
 
 Pass `domain = "dev-data.getangler.ai"` to send to the dev environment. `track` before

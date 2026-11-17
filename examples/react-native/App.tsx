@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Button, SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import {Angler} from '@angler-ai/react-native-analytics';
+import {Angler, AnglerEvent} from '@angler-ai/react-native-analytics';
 
 // Dev workspace credentials. Use your own; never commit a real token.
 const WORKSPACE_ID = 'example-workspace';
@@ -28,7 +28,9 @@ function App(): React.JSX.Element {
         <Button
           title="Track product_viewed"
           onPress={run('Tracked product_viewed', () =>
-            Angler.track('product_viewed', {data: {productVariant: {id: 'variant-1', title: 'Example'}}}),
+            Angler.track(AnglerEvent.productViewed, {
+              data: {productVariant: {id: 'variant-1', title: 'Example', price: {amount: 29, currencyCode: 'USD'}}},
+            }),
           )}
         />
         <Button

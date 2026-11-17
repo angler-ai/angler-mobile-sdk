@@ -92,6 +92,16 @@ internal class AnglerCore(
         post { record(call, now, generatedId, adInfo, null) }
     }
 
+    fun track(event: AnglerEvent, data: AnglerData? = null, properties: Map<String, String>? = null, eventId: String? = null) {
+        val json = try {
+            (data?.toJsonValue() as? JsonValue.Obj)?.fields
+        } catch (t: Throwable) {
+            Log.warning("track('${event.name}'): data couldn't be read ($t); sending the event without it")
+            null
+        }
+        track(event.name, json, properties, eventId)
+    }
+
     fun handleDeepLink(url: String) = post {
         if (identity.isEnabled) attribution.capture(ClickIdParser.parseUrl(url), url)
     }

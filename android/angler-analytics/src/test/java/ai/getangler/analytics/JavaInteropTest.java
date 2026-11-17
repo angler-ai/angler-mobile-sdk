@@ -32,12 +32,17 @@ public class JavaInteropTest {
         Angler.setEnabled(true);
         Angler.flush();
         Angler.reset();
+
+        // Typed events and data from Java.
+        Angler.track(AnglerEvent.ProductViewed.INSTANCE);
+        Angler.track(new AnglerEvent.Custom("level_up"), new AnglerData(null, new AnglerCartLine(null, new AnglerProductVariant("variant-1"), 1)));
     }
 
     @Test
     public void nullsFromJavaNeverThrow() {
-        Angler.track(null);
-        Angler.track(null, null, null, null);
+        Angler.track((String) null);
+        Angler.track((String) null, null, null, null);
+        Angler.track((AnglerEvent) null);
         Angler.handleDeepLink((String) null);
         Angler.handleDeepLink((android.net.Uri) null);
         Angler.setIdentifier(null, "x");

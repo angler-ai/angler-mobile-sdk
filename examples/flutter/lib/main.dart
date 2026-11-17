@@ -56,14 +56,21 @@ class _ExampleAppState extends State<ExampleApp> {
               ElevatedButton(
                 onPressed: () => _run(
                   'Tracked product_viewed',
-                  () => Angler.track('product_viewed', data: {
-                    'productVariant': {'id': 'variant-1', 'title': 'Example'},
-                  }),
+                  () => Angler.track(
+                    AnglerEvent.productViewed,
+                    data: const AnglerData(
+                      productVariant: AnglerProductVariant(
+                        id: 'variant-1',
+                        title: 'Example',
+                        price: AnglerMoney(amount: 29, currencyCode: 'USD'),
+                      ),
+                    ),
+                  ),
                 ),
                 child: const Text('Track product_viewed'),
               ),
               ElevatedButton(
-                onPressed: () => _run('Tracked level_up', () => Angler.track('level_up', properties: {'level': '2'})),
+                onPressed: () => _run('Tracked level_up', () => Angler.track(const AnglerEvent.custom('level_up'), properties: {'level': '2'})),
                 child: const Text('Track custom (level_up)'),
               ),
               ElevatedButton(

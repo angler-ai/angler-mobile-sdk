@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'angler_configuration.dart';
+import 'models.generated.dart';
 
 /// The Angler SDK. Every method returns normally: analytics never crashes the host app.
 /// Errors (no plugin, platform errors, unencodable data) are reported with [debugPrint].
@@ -17,9 +18,33 @@ class Angler {
   static Future<void> configure(AnglerConfiguration configuration) =>
       _invoke('configure', configuration.toMap());
 
-  /// Queues an event. Unknown names are sent as `custom_event`. If [data] can't be encoded
-  /// as JSON, the event is sent without it.
+  /// Queues an event: a standard name (`AnglerEvent.productAddedToCart`) or
+  /// `AnglerEvent.custom('name')`, with typed [data].
+  ///
+  /// ```dart
+  /// await Angler.track(AnglerEvent.productAddedToCart, data: const AnglerData(
+  ///   cartLine: AnglerCartLine(quantity: 1, merchandise: AnglerProductVariant(id: 'variant-1')),
+  /// ));
+  /// ```
   static Future<void> track(
+    AnglerEvent event, {
+    AnglerData? data,
+    Map<String, String>? properties,
+    String? eventId,
+  }) {
+    Map<String, Object?>? json;
+    try {
+      json = data?.toJson();
+    } catch (e) {
+      debugPrint('[Angler] data could not be converted; sending the event without it ($e)');
+    }
+    return trackJson(event.name, data: json, properties: properties, eventId: eventId);
+  }
+
+  /// Like [track], with the event name as a string and [data] as a JSON-like map (the same
+  /// top-level keys as [AnglerData]). If [data] can't be encoded as JSON, the event is sent
+  /// without it.
+  static Future<void> trackJson(
     String name, {
     Map<String, Object?>? data,
     Map<String, String>? properties,

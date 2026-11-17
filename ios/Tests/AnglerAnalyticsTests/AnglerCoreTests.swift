@@ -254,6 +254,21 @@ final class AnglerCoreTests: XCTestCase {
         XCTAssertEqual(identifiers(e)["aid"], e["client_id"]?.stringValue)
     }
 
+    func testTrackTypedEvent() throws {
+        transport.defaultStatus = nil
+        let core = makeCore()
+        core.configure(config())
+        core.track(.productAddedToCart, data: TypedDataCases.build("cart_line_added"), properties: ["a": "1"])
+        core.track(.custom("level_up"))
+        let events = core.queuedBodies()
+        XCTAssertEqual(events[0]["event_name"], .string("product_added_to_cart"))
+        var expected = try XCTUnwrap(Fixtures.load("typed-data").first { $0.name == "cart_line_added" }?.expected.objectValue)
+        expected["customData"] = .array([.object(["name": .string("a"), "value": .string("1")])])
+        XCTAssertEqual(events[0]["data"], .object(expected))
+        XCTAssertEqual(events[1]["event_name"], .string("custom_event"))
+        XCTAssertEqual(events[1]["custom_event_name"], .string("level_up"))
+    }
+
     func testClientIdOverride() throws {
         let core = makeCore()
         transport.defaultStatus = nil

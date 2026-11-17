@@ -73,6 +73,30 @@ object Angler {
         c.track(name, data, properties, eventId)
     }
 
+    /**
+     * Queues a typed event: a standard name (or [AnglerEvent.Custom]) with typed [data].
+     *
+     * ```
+     * Angler.track(AnglerEvent.ProductAddedToCart, AnglerData(cartLine = AnglerCartLine(
+     *     merchandise = AnglerProductVariant(id = "variant-1", price = AnglerMoney(amount = 29, currencyCode = "USD")),
+     *     quantity = 1)))
+     * ```
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun track(event: AnglerEvent?, data: AnglerData? = null, properties: Map<String, String>? = null, eventId: String? = null) {
+        if (event == null) {
+            Log.warning("track: event is null; dropped")
+            return
+        }
+        val c = synchronized(lock) { core }
+        if (c == null) {
+            Log.warning("track('${event.name}') dropped: call Angler.configure first")
+            return
+        }
+        c.track(event, data, properties, eventId)
+    }
+
     /** Captures click IDs and the session URL. Works before [configure]. */
     @JvmStatic
     fun handleDeepLink(uri: Uri?) = handleDeepLink(uri?.toString())
