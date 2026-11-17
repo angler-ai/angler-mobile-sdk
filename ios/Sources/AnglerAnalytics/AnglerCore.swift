@@ -58,8 +58,12 @@ final class AnglerCore {
     private let lifecycleNotifications: LifecycleNotifications?
     private let backgroundTasks: BackgroundTasking?
 
+    private let store: KeyValueStore
     private let identity: IdentityStore
     private let attribution: AttributionStore
+    /// Set once this process has seen the app in the foreground (its cold-start launch).
+    private var sawFirstForeground = false
+    private static let lastBackgroundKey = "last_background_ms"
 
     private(set) var configuration: AnglerConfiguration?
     private(set) var eventQueue: EventQueue?
@@ -87,6 +91,7 @@ final class AnglerCore {
         self.lifecycleNotifications = lifecycle
         self.backgroundTasks = backgroundTasks
         self.queue = queue
+        self.store = store
         identity = IdentityStore(store: store)
         attribution = AttributionStore(store: store, clock: clock)
         queue.setSpecific(key: queueKey, value: ())
@@ -95,7 +100,33 @@ final class AnglerCore {
     // MARK: - Public operations (any thread)
 
     func configure(_ config: AnglerConfiguration) {
+        startObservingLifecycle()
         queue.async { self.doConfigure(config) }
+    }
+
+    private let observerLock = NSLock()
+
+    /// Observes the lifecycle from the first configure call, on the caller's thread, so a
+    /// didBecomeActive posted before the queued configure work runs isn't missed (handlers
+    /// queue behind it). The cold-start app_launched is recorded on the first foreground, not
+    /// at configure: configure also runs for background launches (silent push, background
+    /// fetch), and the URL that opened the app is delivered after configure.
+    private func startObservingLifecycle() {
+        observerLock.lock()
+        defer { observerLock.unlock() }
+        guard lifecycleObserver == nil, let notifications = lifecycleNotifications else { return }
+        lifecycleObserver = LifecycleObserver(
+            notifications: notifications,
+            onForeground: { [weak self] in self?.didBecomeActive() },
+            onBackground: { [weak self] in self?.didEnterBackground() }
+        )
+        if let isActive = notifications.isActive {
+            // Wrappers configure after the app is already active, so that first didBecomeActive
+            // has passed. A duplicate is ignored (see handleForeground).
+            DispatchQueue.main.async { [weak self] in
+                if isActive() { self?.didBecomeActive() }
+            }
+        }
     }
 
     func track(_ name: String, data: [String: Any]? = nil, properties: [String: String]? = nil, eventId: String? = nil) {
@@ -170,6 +201,10 @@ final class AnglerCore {
             Log.warning("configure: workspaceId and token are required")
             return
         }
+        guard URLSessionTransport.endpoint(domain: config.domain, workspaceId: config.workspaceId) != nil else {
+            Log.error("configure: invalid domain '\(config.domain)'; expected a host such as data.getangler.ai")
+            return
+        }
         Log.debugEnabled = config.debugLogging
         configuration = config
 
@@ -186,20 +221,11 @@ final class AnglerCore {
         let isNewInstall = identity.ensureAid().isNew
         if !identity.isEnabled {
             events.removeAll()
-        } else if config.trackLifecycleEvents {
+        } else if config.trackLifecycleEvents && isNewInstall {
             let ad = adIds.current()
-            if isNewInstall { record(TrackCall(name: "app_installed"), at: clock.now(), generatedId: uuid(), idfa: ad.idfa, authorized: ad.authorized) }
-            record(TrackCall(name: "app_launched"), at: clock.now(), generatedId: uuid(), idfa: ad.idfa, authorized: ad.authorized)
+            record(TrackCall(name: "app_installed"), at: clock.now(), generatedId: uuid(), idfa: ad.idfa, authorized: ad.authorized)
         }
 
-        if let notifications = lifecycleNotifications {
-            lifecycleObserver = LifecycleObserver(
-                clock: clock,
-                notifications: notifications,
-                onForeground: { [weak self] _, gap in self?.didEnterForeground(backgroundedFor: gap) },
-                onBackground: { [weak self] in self?.didEnterBackground() }
-            )
-        }
         scheduleFlushTimer(interval: config.flushInterval)
     }
 
@@ -240,8 +266,11 @@ final class AnglerCore {
 
     /// Called on the posting thread (main for UIKit).
     private func didEnterBackground() {
+        let now = clock.now()
         let task = backgroundTasks?.begin()
         queue.async {
+            // Persisted, so a later process can tell how long the app was away.
+            self.store.set(String(now.epochMillis), for: Self.lastBackgroundKey)
             guard let flusher = self.flusher, (self.eventQueue?.count ?? 0) > 0 else {
                 self.backgroundTasks?.end(task)
                 return
@@ -250,16 +279,32 @@ final class AnglerCore {
         }
     }
 
-    private func didEnterForeground(backgroundedFor gap: TimeInterval?) {
+    private func didBecomeActive() {
         let now = clock.now()
         let ad = adIds.current()
         let launchId = uuid()
-        queue.async {
-            guard let config = self.configuration, let gap, LifecycleObserver.isNewSession(backgroundedFor: gap) else { return }
-            self.attribution.clearSessionURL()
-            if config.trackLifecycleEvents {
-                self.record(TrackCall(name: "app_launched"), at: now, generatedId: launchId, idfa: ad.idfa, authorized: ad.authorized)
-            }
+        queue.async { self.handleForeground(at: now, launchId: launchId, idfa: ad.idfa, authorized: ad.authorized) }
+    }
+
+    /// A cold start's first foreground, or a return after 30+ minutes in the background, is a
+    /// new session (design §6.3, §9): `app_launched`, and a session URL from before that
+    /// background is cleared. Becoming active without a background in between is ignored.
+    private func handleForeground(at now: Date, launchId: String, idfa: String?, authorized: Bool) {
+        guard let config = configuration else { return }
+        let lastBackground = store.string(Self.lastBackgroundKey).flatMap(Int64.init)
+        let coldStart = !sawFirstForeground
+        guard coldStart || lastBackground != nil else { return }
+        sawFirstForeground = true
+        store.set(nil, for: Self.lastBackgroundKey)
+
+        var newSession = coldStart
+        if let lastBackground,
+           LifecycleObserver.isNewSession(backgroundedFor: TimeInterval(now.epochMillis - lastBackground) / 1000) {
+            attribution.clearSessionURL(capturedAtOrBefore: lastBackground)
+            newSession = true
+        }
+        if newSession && config.trackLifecycleEvents && identity.isEnabled {
+            record(TrackCall(name: "app_launched"), at: now, generatedId: launchId, idfa: idfa, authorized: authorized)
         }
     }
 

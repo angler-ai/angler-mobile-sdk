@@ -161,3 +161,20 @@ final class FlusherTests: XCTestCase {
         XCTAssertEqual(transport.requestCount, 1, "no extra request while the retry waits")
     }
 }
+
+final class EndpointTests: XCTestCase {
+    func testEndpointNormalizesDomain() {
+        for domain in ["dev-data.getangler.ai", "https://dev-data.getangler.ai/", " HTTPS://dev-data.getangler.ai "] {
+            XCTAssertEqual(URLSessionTransport.endpoint(domain: domain, workspaceId: "ws")?.absoluteString,
+                           "https://dev-data.getangler.ai/v1/workspaces/ws/events", domain)
+        }
+        XCTAssertEqual(URLSessionTransport.endpoint(domain: "localhost:8443", workspaceId: "ws")?.absoluteString,
+                       "https://localhost:8443/v1/workspaces/ws/events")
+    }
+
+    func testInvalidDomainHasNoEndpoint() {
+        for domain in ["", "https://", "has space.ai", "data.getangler.ai/path", "http://x.ai?q=1"] {
+            XCTAssertNil(URLSessionTransport.endpoint(domain: domain, workspaceId: "ws"), domain)
+        }
+    }
+}

@@ -14,6 +14,7 @@ final class AttributionStore {
         static let clickIds = "click_ids"
         static let fbc = "fbc"
         static let sessionURL = "session_url"
+        static let sessionURLAt = "session_url_at"
     }
 
     private struct Entry: Codable {
@@ -47,7 +48,10 @@ final class AttributionStore {
         if let fbclid = clickIds["fbclid"], !fbclid.isEmpty, readFbc()?.fbclid != fbclid {
             writeFbc(FbcEntry(value: "fb.1.\(now).\(fbclid)", fbclid: fbclid, capturedAtMs: now))
         }
-        if let url, !url.isEmpty { store.set(url, for: Key.sessionURL) }
+        if let url, !url.isEmpty {
+            store.set(url, for: Key.sessionURL)
+            store.set(String(now), for: Key.sessionURLAt)
+        }
     }
 
     func snapshot() -> AttributionSnapshot {
@@ -61,12 +65,23 @@ final class AttributionStore {
         )
     }
 
-    func clearSessionURL() { store.set(nil, for: Key.sessionURL) }
+    func clearSessionURL() {
+        store.set(nil, for: Key.sessionURL)
+        store.set(nil, for: Key.sessionURLAt)
+    }
+
+    /// Ends the session URL if it was captured at or before `cutoffMs` (the start of a long
+    /// background), so a link that opened the app after that background is kept.
+    func clearSessionURL(capturedAtOrBefore cutoffMs: Int64) {
+        guard store.string(Key.sessionURL) != nil else { return }
+        let capturedAt = store.string(Key.sessionURLAt).flatMap(Int64.init) ?? Int64.min
+        if capturedAt <= cutoffMs { clearSessionURL() }
+    }
 
     func clear() {
         store.set(nil, for: Key.clickIds)
         store.set(nil, for: Key.fbc)
-        store.set(nil, for: Key.sessionURL)
+        clearSessionURL()
     }
 
     private func liveEntries(now: Int64) -> [String: Entry] {

@@ -7,23 +7,17 @@ final class LifecycleTests: XCTestCase {
         XCTAssertTrue(LifecycleObserver.isNewSession(backgroundedFor: 1800))
     }
 
-    func testObserverReportsBackgroundDuration() {
+    func testObserverForwardsNotifications() {
         let center = NotificationCenter()
-        let clock = FixedClock(date: Date(timeIntervalSince1970: 1000))
-        var backgrounds = 0
-        var foregrounds: [TimeInterval?] = []
+        var events: [String] = []
         let observer = LifecycleObserver(
-            clock: clock,
             notifications: LifecycleNotifications(center: center, background: .init("bg"), foreground: .init("fg")),
-            onForeground: { cold, gap in XCTAssertFalse(cold); foregrounds.append(gap) },
-            onBackground: { backgrounds += 1 }
+            onForeground: { events.append("fg") },
+            onBackground: { events.append("bg") }
         )
         center.post(name: .init("fg"), object: nil)
         center.post(name: .init("bg"), object: nil)
-        clock.date = clock.date.addingTimeInterval(42)
-        center.post(name: .init("fg"), object: nil)
-        XCTAssertEqual(backgrounds, 1)
-        XCTAssertEqual(foregrounds, [nil, 42])
+        XCTAssertEqual(events, ["fg", "bg"])
         withExtendedLifetime(observer) {}
     }
 

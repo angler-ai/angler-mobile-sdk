@@ -22,10 +22,21 @@ final class URLSessionTransport: Transport {
         session = URLSession(configuration: config)
     }
 
+    /// `https://{domain}/v1/workspaces/{workspaceId}/events`. Accepts a bare host (optionally
+    /// with a port) and tolerates a leading `https://` / `http://` and a trailing `/`. Nil for
+    /// anything else, so a typo fails loudly at configure instead of losing every event.
     static func endpoint(domain: String, workspaceId: String) -> URL? {
+        var host = domain.trimmingCharacters(in: .whitespacesAndNewlines)
+        for scheme in ["https://", "http://"] where host.lowercased().hasPrefix(scheme) {
+            host = String(host.dropFirst(scheme.count))
+        }
+        while host.hasSuffix("/") { host.removeLast() }
+        guard host.range(of: #"^[A-Za-z0-9.-]+(:[0-9]{1,5})?$"#, options: .regularExpression) != nil else { return nil }
+        let parts = host.split(separator: ":", maxSplits: 1)
         var c = URLComponents()
         c.scheme = "https"
-        c.host = domain
+        c.host = String(parts[0])
+        if parts.count == 2 { c.port = Int(parts[1]) }
         c.path = "/v1/workspaces/\(workspaceId)/events"
         return c.url
     }

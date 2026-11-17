@@ -24,7 +24,8 @@ final class AnglerCoreTests: XCTestCase {
 
     override func tearDownWithError() throws { try? FileManager.default.removeItem(at: dir) }
 
-    private func makeCore(transport: FakeTransport? = nil) -> AnglerCore {
+    private func makeCore(transport: FakeTransport? = nil, center: NotificationCenter? = nil,
+                          isActive: (() -> Bool)? = nil) -> AnglerCore {
         let lock = NSLock()
         return AnglerCore(
             store: store,
@@ -40,7 +41,8 @@ final class AnglerCoreTests: XCTestCase {
             },
             uuid: { [unowned self] in lock.lock(); defer { lock.unlock() }; self.counter += 1; return "uuid-\(self.counter)" },
             scheduler: scheduler,
-            lifecycle: LifecycleNotifications(center: center, background: .init("bg"), foreground: .init("fg")),
+            lifecycle: LifecycleNotifications(center: center ?? self.center, background: .init("bg"),
+                                              foreground: .init("fg"), isActive: isActive),
             backgroundTasks: nil
         )
     }
@@ -63,20 +65,40 @@ final class AnglerCoreTests: XCTestCase {
 
     // MARK: lifecycle events
 
-    func testFirstConfigureQueuesInstalledThenLaunched() {
+    private func foreground(_ c: NotificationCenter? = nil) { (c ?? center).post(name: .init("fg"), object: nil) }
+    private func background(_ c: NotificationCenter? = nil) { (c ?? center).post(name: .init("bg"), object: nil) }
+
+    func testInstalledAtConfigureLaunchedOnFirstForeground() {
         transport.defaultStatus = nil
         let core = makeCore()
         core.configure(config(lifecycle: true))
+        XCTAssertEqual(names(core), ["app_installed"])
+        foreground()
         XCTAssertEqual(names(core), ["app_installed", "app_launched"])
+    }
+
+    func testBackgroundOnlyLaunchSendsNoAppLaunched() {
+        transport.defaultStatus = nil
+        let first = makeCore()
+        first.configure(config(lifecycle: true))
+        foreground()
+        first.waitUntilIdle()
+        // e.g. a silent push wakes the app: configure runs, the app never comes to the foreground.
+        let second = makeCore(center: NotificationCenter())
+        second.configure(config(lifecycle: true))
+        XCTAssertEqual(names(second), ["app_installed", "app_launched"])
     }
 
     func testSecondConfigureOnlyLaunched() {
         transport.defaultStatus = nil
         let first = makeCore()
         first.configure(config(lifecycle: true))
+        foreground()
         first.waitUntilIdle()
-        let second = makeCore()
+        let other = NotificationCenter()
+        let second = makeCore(center: other)
         second.configure(config(lifecycle: true))
+        foreground(other)
         // Same queue file: the first core's two events are still there, plus one launch.
         XCTAssertEqual(names(second), ["app_installed", "app_launched", "app_launched"])
     }
@@ -86,7 +108,90 @@ final class AnglerCoreTests: XCTestCase {
         let core = makeCore()
         core.configure(config(lifecycle: true))
         core.configure(config(lifecycle: true))
+        foreground()
         XCTAssertEqual(names(core), ["app_installed", "app_launched"])
+    }
+
+    func testBecomingActiveWithoutBackgroundIsNotALaunch() {
+        transport.defaultStatus = nil
+        let core = makeCore()
+        core.configure(config(lifecycle: true))
+        foreground()
+        foreground() // e.g. Control Center or a system alert dismissed
+        XCTAssertEqual(names(core), ["app_installed", "app_launched"])
+    }
+
+    func testLaunchCarriesDeepLinkDeliveredAfterConfigure() throws {
+        transport.defaultStatus = nil
+        let core = makeCore()
+        core.configure(config(lifecycle: true))
+        core.handleDeepLink(urlString: "myapp://p/1?gclid=g1") // onOpenURL runs after configure
+        foreground()
+        let launched = try XCTUnwrap(core.queuedBodies().last)
+        XCTAssertEqual(launched["event_name"], .string("app_launched"))
+        XCTAssertEqual(identifiers(launched)["gclid"], "g1")
+        XCTAssertEqual(launched["url"], .string("myapp://p/1?gclid=g1"))
+    }
+
+    func testConfigureWhileAlreadyActiveRecordsLaunch() {
+        transport.defaultStatus = nil
+        // React Native and Flutter call configure after the app is already active.
+        let core = makeCore(isActive: { true })
+        core.configure(config(lifecycle: true))
+        core.waitUntilIdle()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.1)) // the active check hops to main
+        XCTAssertEqual(names(core), ["app_installed", "app_launched"])
+        foreground()
+        XCTAssertEqual(names(core), ["app_installed", "app_launched"], "the observer's own event isn't a second launch")
+    }
+
+    // A previous process went to the background and was killed; a new process starts later.
+    private func previousSession(url: String, backgroundedAfter: TimeInterval = 0) {
+        let other = NotificationCenter()
+        let old = makeCore(center: other)
+        old.configure(config(lifecycle: true))
+        old.handleDeepLink(urlString: url)
+        foreground(other)
+        old.waitUntilIdle()
+        clock.date = clock.date.addingTimeInterval(backgroundedAfter)
+        background(other)
+        old.waitUntilIdle()
+    }
+
+    func testColdStartAfterLongBackgroundClearsPreviousSessionURL() throws {
+        transport.defaultStatus = nil
+        previousSession(url: "myapp://old?gclid=g1")
+        clock.date = clock.date.addingTimeInterval(1800)
+        let core = makeCore()
+        core.configure(config(lifecycle: true))
+        foreground()
+        let launched = try XCTUnwrap(core.queuedBodies().last)
+        XCTAssertEqual(launched["event_name"], .string("app_launched"))
+        XCTAssertNil(launched["url"])
+        XCTAssertEqual(identifiers(launched)["gclid"], "g1", "click IDs outlive the session")
+    }
+
+    func testColdStartAfterShortBackgroundKeepsURL() throws {
+        transport.defaultStatus = nil
+        previousSession(url: "myapp://old?gclid=g1")
+        clock.date = clock.date.addingTimeInterval(1799)
+        let core = makeCore()
+        core.configure(config(lifecycle: true))
+        foreground()
+        XCTAssertEqual(try XCTUnwrap(core.queuedBodies().last)["url"], .string("myapp://old?gclid=g1"))
+    }
+
+    func testColdStartKeepsLinkThatOpenedTheApp() throws {
+        transport.defaultStatus = nil
+        previousSession(url: "myapp://old?gclid=g1")
+        clock.date = clock.date.addingTimeInterval(3600)
+        let core = makeCore()
+        core.configure(config(lifecycle: true))
+        core.handleDeepLink(urlString: "myapp://new?gclid=g2")
+        foreground()
+        let launched = try XCTUnwrap(core.queuedBodies().last)
+        XCTAssertEqual(launched["url"], .string("myapp://new?gclid=g2"))
+        XCTAssertEqual(identifiers(launched)["gclid"], "g2")
     }
 
     func testLifecycleEventsOffQueuesNothing() {
@@ -96,6 +201,14 @@ final class AnglerCoreTests: XCTestCase {
     }
 
     // MARK: track
+
+    func testConfigureWithInvalidDomainIsIgnored() {
+        let core = makeCore()
+        core.configure(AnglerConfiguration(workspaceId: "ws", token: "tok", domain: "not a domain", trackLifecycleEvents: false))
+        core.track("product_viewed")
+        XCTAssertNil(core.configuration(sync: ()), "an endpoint that can't be built must not configure the SDK")
+        XCTAssertEqual(core.queuedBodies().count, 0)
+    }
 
     func testTrackBeforeConfigureDropped() {
         let core = makeCore()
@@ -246,7 +359,7 @@ final class AnglerCoreTests: XCTestCase {
         let core = makeCore()
         core.reset()
         core.configure(config(lifecycle: true))
-        XCTAssertEqual(names(core), ["app_installed", "app_launched"])
+        XCTAssertEqual(names(core), ["app_installed"])
     }
 
     // MARK: delivery
@@ -336,6 +449,7 @@ final class AnglerCoreTests: XCTestCase {
         let core = makeCore()
         core.configure(config(lifecycle: true))
         core.handleDeepLink(urlString: "myapp://x?gclid=g1")
+        foreground()
         core.waitUntilIdle()
 
         center.post(name: .init("bg"), object: nil)
@@ -363,6 +477,7 @@ final class FakeAdIds: AdIdProviding {
 }
 
 extension AnglerCore {
+    func configuration(sync: Void) -> AnglerConfiguration? { queue.sync { configuration } }
     func waitUntilIdle() { queue.sync {} }
     func queuedBodies() -> [JSONValue] {
         queue.sync { eventQueue?.peek(Int.max).map(\.body) ?? [] }

@@ -51,11 +51,9 @@ public enum Angler {
             clock: SystemClock(),
             queueDirectory: support.appendingPathComponent("AnglerAnalytics", isDirectory: true),
             transportFactory: { config in
-                guard let url = URLSessionTransport.endpoint(domain: config.domain, workspaceId: config.workspaceId) else {
-                    Log.error("invalid domain '\(config.domain)'")
-                    return URLSessionTransport(endpoint: URL(string: "https://data.getangler.ai")!, token: config.token)
-                }
-                return URLSessionTransport(endpoint: url, token: config.token)
+                // AnglerCore.configure only gets this far once the endpoint has been validated.
+                URLSessionTransport(endpoint: URLSessionTransport.endpoint(domain: config.domain, workspaceId: config.workspaceId)!,
+                                    token: config.token)
             },
             adIds: SystemAdIdProvider(),
             device: { config, adTracking, appTracking in
