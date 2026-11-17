@@ -13,7 +13,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ProcessLifecycleOwner
 import java.io.File
-import java.net.URL
 import java.util.UUID
 import java.util.concurrent.Executors
 
@@ -119,9 +118,8 @@ object Angler {
             clock = SystemClock,
             queueDir = File(context.noBackupFilesDir, "angler_analytics"),
             transportFactory = { c ->
-                val url = HttpUrlConnectionTransport.endpoint(c.domain, c.workspaceId)
-                    ?: URL("https://data.getangler.ai/v1/workspaces/${c.workspaceId}/events")
-                HttpUrlConnectionTransport(url, c.token)
+                // AnglerCore.configure only gets this far once the endpoint has been validated.
+                HttpUrlConnectionTransport(requireNotNull(HttpUrlConnectionTransport.endpoint(c.domain, c.workspaceId)), c.token)
             },
             adIds = PlayAdIdProvider(context),
             referrer = PlayInstallReferrerSource(context),

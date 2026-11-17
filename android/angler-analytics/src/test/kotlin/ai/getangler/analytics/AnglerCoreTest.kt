@@ -67,13 +67,29 @@ class AnglerCoreTest {
 
     // lifecycle events
 
-    @Test fun firstConfigureQueuesInstalledThenLaunched() {
+    @Test fun installedAtConfigureLaunchedOnFirstStart() {
         transport.defaultStatus = null
         val core = makeCore()
         core.configure(config(lifecycle = true))
         core.waitUntilIdle()
         referrer.answer(null)
+        assertEquals(listOf("app_installed"), names(core))
+        observers.last().handleStart()
         assertEquals(listOf("app_installed", "app_launched"), names(core))
+    }
+
+    @Test fun backgroundOnlyLaunchSendsNoAppLaunched() {
+        transport.defaultStatus = null
+        val first = makeCore()
+        first.configure(config(lifecycle = true))
+        first.waitUntilIdle()
+        referrer.answer(null)
+        observers.last().handleStart()
+        first.waitUntilIdle()
+        // e.g. an FCM message starts the process: Application.onCreate configures, no activity starts.
+        val second = makeCore()
+        second.configure(config(lifecycle = true))
+        assertEquals(listOf("app_installed", "app_launched"), names(second))
     }
 
     @Test fun secondConfigureOnlyLaunched() {
@@ -82,9 +98,12 @@ class AnglerCoreTest {
         first.configure(config(lifecycle = true))
         first.waitUntilIdle()
         referrer.answer(null)
+        observers.last().handleStart()
         first.waitUntilIdle()
         val second = makeCore()
         second.configure(config(lifecycle = true))
+        second.waitUntilIdle()
+        observers.last().handleStart()
         assertEquals(listOf("app_installed", "app_launched", "app_launched"), names(second))
         assertEquals("referrer is only read on first install", 1, referrer.fetches)
     }
@@ -96,7 +115,94 @@ class AnglerCoreTest {
         core.configure(config(lifecycle = true))
         core.waitUntilIdle()
         referrer.answer(null)
+        observers.forEach { it.handleStart() }
         assertEquals(listOf("app_installed", "app_launched"), names(core))
+        assertEquals(1, observers.size)
+    }
+
+    @Test fun startWithoutStopIsNotALaunch() {
+        transport.defaultStatus = null
+        val core = makeCore()
+        core.configure(config(lifecycle = true))
+        core.waitUntilIdle()
+        referrer.answer(null)
+        observers.last().handleStart()
+        observers.last().handleStart() // e.g. the replay when an observer is added late
+        assertEquals(listOf("app_installed", "app_launched"), names(core))
+    }
+
+    @Test fun launchCarriesDeepLinkDeliveredAfterConfigure() {
+        transport.defaultStatus = null
+        val core = makeCore()
+        core.configure(config(lifecycle = true))
+        core.waitUntilIdle()
+        referrer.answer(null)
+        core.handleDeepLink("myapp://p/1?gclid=g1") // Activity.onCreate runs after Application.onCreate
+        observers.last().handleStart()
+        val launched = core.queuedBodies().last()
+        assertEquals(JsonValue.Str("app_launched"), launched["event_name"])
+        assertEquals("g1", ids(launched)["gclid"])
+        assertEquals(JsonValue.Str("myapp://p/1?gclid=g1"), launched["url"])
+    }
+
+    /** A previous process went to the background and was killed; a new process starts later. */
+    private fun previousSession(url: String) {
+        val old = makeCore()
+        old.configure(config(lifecycle = true))
+        old.waitUntilIdle()
+        referrer.answer(null)
+        old.handleDeepLink(url)
+        val obs = observers.last()
+        obs.handleStart()
+        obs.handleStop()
+        old.waitUntilIdle()
+    }
+
+    @Test fun coldStartAfterLongBackgroundClearsPreviousSessionUrl() {
+        transport.defaultStatus = null
+        previousSession("myapp://old?gclid=g1")
+        clock.now += 1_800_000
+        val core = makeCore()
+        core.configure(config(lifecycle = true))
+        core.waitUntilIdle()
+        observers.last().handleStart()
+        val launched = core.queuedBodies().last()
+        assertEquals(JsonValue.Str("app_launched"), launched["event_name"])
+        assertNull(launched["url"])
+        assertEquals("click IDs outlive the session", "g1", ids(launched)["gclid"])
+    }
+
+    @Test fun coldStartAfterShortBackgroundKeepsUrl() {
+        transport.defaultStatus = null
+        previousSession("myapp://old?gclid=g1")
+        clock.now += 1_799_000
+        val core = makeCore()
+        core.configure(config(lifecycle = true))
+        core.waitUntilIdle()
+        observers.last().handleStart()
+        assertEquals(JsonValue.Str("myapp://old?gclid=g1"), core.queuedBodies().last()["url"])
+    }
+
+    @Test fun coldStartKeepsLinkThatOpenedTheApp() {
+        transport.defaultStatus = null
+        previousSession("myapp://old?gclid=g1")
+        clock.now += 3_600_000
+        val core = makeCore()
+        core.configure(config(lifecycle = true))
+        core.handleDeepLink("myapp://new?gclid=g2")
+        core.waitUntilIdle()
+        observers.last().handleStart()
+        val launched = core.queuedBodies().last()
+        assertEquals(JsonValue.Str("myapp://new?gclid=g2"), launched["url"])
+        assertEquals("g2", ids(launched)["gclid"])
+    }
+
+    @Test fun configureWithInvalidDomainIsIgnored() {
+        val core = makeCore()
+        core.configure(AnglerConfiguration("ws", "tok", domain = "not a domain", trackLifecycleEvents = false))
+        core.track("product_viewed")
+        assertEquals(0, core.queuedBodies().size)
+        assertNull(core.executor.submit<AnglerConfiguration?> { core.configuration }.get())
     }
 
     // track
@@ -318,7 +424,7 @@ class AnglerCoreTest {
         core.handleDeepLink("myapp://x?gclid=g1")
         core.waitUntilIdle()
         val obs = observers.single()
-        obs.handleStart() // first ON_START after configure: not a new session
+        obs.handleStart() // the cold-start launch
         obs.handleStop()
         clock.now += 1_799_000
         obs.handleStart()
@@ -346,6 +452,9 @@ class AnglerCoreTest {
         core.waitUntilIdle()
         assertEquals(emptyList<String>(), names(core))
         scheduler.advance(1_000)
+        observers.last().handleStart() // the app comes to the foreground before the referrer answers
+        core.waitUntilIdle()
+        assertEquals("app_launched waits for app_installed", emptyList<String>(), names(core))
         referrer.answer("gclid=Cj0KCQ&utm_source=google")
         core.track("product_viewed")
         val events = core.queuedBodies()
@@ -353,6 +462,7 @@ class AnglerCoreTest {
         assertEquals(JsonValue.Str("gclid=Cj0KCQ&utm_source=google"), events[0]["referrer"])
         assertEquals("Cj0KCQ", ids(events[0])["gclid"])
         assertNull(events[1]["referrer"])
+        assertEquals("Cj0KCQ", ids(events[1])["gclid"])
         assertEquals("Cj0KCQ", ids(events[2])["gclid"])
         assertNull("the referrer never sets the session URL", events[2]["url"])
     }
@@ -367,10 +477,10 @@ class AnglerCoreTest {
         assertEquals(emptyList<String>(), names(core))
         scheduler.advance(1)
         core.waitUntilIdle()
-        assertEquals(listOf("app_installed", "app_launched"), names(core))
+        assertEquals(listOf("app_installed"), names(core))
         assertNull(core.queuedBodies()[0]["referrer"])
         referrer.answer("gclid=late") // a late answer must not add a second install
-        assertEquals(listOf("app_installed", "app_launched"), names(core))
+        assertEquals(listOf("app_installed"), names(core))
     }
 }
 

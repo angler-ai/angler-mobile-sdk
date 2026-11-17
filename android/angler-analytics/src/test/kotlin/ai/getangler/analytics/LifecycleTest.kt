@@ -12,16 +12,11 @@ class LifecycleTest {
         assertTrue(LifecycleObserver.isNewSession(1_800_000))
     }
 
-    @Test fun observerReportsBackgroundDuration() {
-        val clock = FakeClock(1_000)
-        var backgrounds = 0
-        val foregrounds = ArrayList<Long?>()
-        val obs = LifecycleObserver(clock, onForeground = { cold, gap -> assertFalse(cold); foregrounds += gap }, onBackground = { backgrounds++ })
+    @Test fun observerForwardsStartAndStop() {
+        val events = ArrayList<String>()
+        val obs = LifecycleObserver(onForeground = { events += "start" }, onBackground = { events += "stop" })
         obs.handleStart()
         obs.handleStop()
-        clock.now += 42_000
-        obs.handleStart()
-        assertEquals(1, backgrounds)
-        assertEquals(listOf(null, 42_000L), foregrounds)
+        assertEquals(listOf("start", "stop"), events)
     }
 }

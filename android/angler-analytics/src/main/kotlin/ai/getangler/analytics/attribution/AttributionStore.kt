@@ -13,6 +13,7 @@ internal class AttributionStore(private val store: KeyValueStore, private val cl
         private const val KEY_CLICK_IDS = "click_ids"
         private const val KEY_FBC = "fbc"
         private const val KEY_SESSION_URL = "session_url"
+        private const val KEY_SESSION_URL_AT = "session_url_at"
     }
 
     private data class Entry(val value: String, val capturedAtMs: Long)
@@ -32,7 +33,10 @@ internal class AttributionStore(private val store: KeyValueStore, private val cl
         if (!fbclid.isNullOrEmpty() && readFbc()?.fbclid != fbclid) {
             writeFbc(FbcEntry("fb.1.$now.$fbclid", fbclid, now))
         }
-        if (!url.isNullOrEmpty()) store.putString(KEY_SESSION_URL, url)
+        if (!url.isNullOrEmpty()) {
+            store.putString(KEY_SESSION_URL, url)
+            store.putString(KEY_SESSION_URL_AT, now.toString())
+        }
     }
 
     fun snapshot(): AttributionSnapshot {
@@ -41,12 +45,25 @@ internal class AttributionStore(private val store: KeyValueStore, private val cl
         return AttributionSnapshot(entries.mapValues { it.value.value }, fbc, store.getString(KEY_SESSION_URL))
     }
 
-    fun clearSessionUrl() = store.putString(KEY_SESSION_URL, null)
+    fun clearSessionUrl() {
+        store.putString(KEY_SESSION_URL, null)
+        store.putString(KEY_SESSION_URL_AT, null)
+    }
+
+    /**
+     * Ends the session URL if it was captured at or before [capturedAtOrBefore] (the start of a long
+     * background), so a link that opened the app after that background is kept.
+     */
+    fun clearSessionUrl(capturedAtOrBefore: Long) {
+        if (store.getString(KEY_SESSION_URL) == null) return
+        val capturedAt = store.getString(KEY_SESSION_URL_AT)?.toLongOrNull() ?: Long.MIN_VALUE
+        if (capturedAt <= capturedAtOrBefore) clearSessionUrl()
+    }
 
     fun clear() {
         store.putString(KEY_CLICK_IDS, null)
         store.putString(KEY_FBC, null)
-        store.putString(KEY_SESSION_URL, null)
+        clearSessionUrl()
     }
 
     private fun liveEntries(now: Long): Map<String, Entry> {

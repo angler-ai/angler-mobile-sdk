@@ -23,10 +23,26 @@ internal class HttpUrlConnectionTransport(
     companion object {
         const val TIMEOUT_MILLIS = 15_000
 
-        fun endpoint(domain: String, workspaceId: String): URL? = try {
-            URL("https", domain, "/v1/workspaces/${java.net.URLEncoder.encode(workspaceId, "UTF-8").replace("+", "%20")}/events")
-        } catch (e: Exception) {
-            null
+        private val HOST = Regex("^[A-Za-z0-9.-]+(:[0-9]{1,5})?$")
+
+        /**
+         * `https://{domain}/v1/workspaces/{workspaceId}/events`. Accepts a bare host (optionally
+         * with a port) and tolerates a leading `https://` / `http://` and a trailing `/`. Null
+         * for anything else, so a typo fails loudly at configure instead of losing every event.
+         */
+        fun endpoint(domain: String, workspaceId: String): URL? {
+            var host = domain.trim()
+            for (scheme in listOf("https://", "http://")) {
+                if (host.startsWith(scheme, ignoreCase = true)) host = host.substring(scheme.length)
+            }
+            host = host.trimEnd('/')
+            if (!HOST.matches(host)) return null
+            return try {
+                val ws = java.net.URLEncoder.encode(workspaceId, "UTF-8").replace("+", "%20")
+                URL("https://$host/v1/workspaces/$ws/events")
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 

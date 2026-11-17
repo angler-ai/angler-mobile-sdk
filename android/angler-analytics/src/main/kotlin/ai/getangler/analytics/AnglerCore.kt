@@ -7,6 +7,7 @@ import ai.getangler.analytics.device.AdIdProvider
 import ai.getangler.analytics.device.InstallReferrerSource
 import ai.getangler.analytics.lifecycle.LifecycleObserver
 import ai.getangler.analytics.network.Flusher
+import ai.getangler.analytics.network.HttpUrlConnectionTransport
 import ai.getangler.analytics.network.Scheduler
 import ai.getangler.analytics.network.Transport
 import ai.getangler.analytics.payload.DeviceSnapshot
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /** All SDK state lives here and is only touched on [executor] (design §3). */
 internal class AnglerCore(
-    store: KeyValueStore,
+    private val store: KeyValueStore,
     private val clock: Clock,
     private val queueDir: File,
     private val transportFactory: (AnglerConfiguration) -> Transport,
@@ -40,6 +41,7 @@ internal class AnglerCore(
         const val SRC = "ANDROID"
         const val BATCH_SIZE = 100
         const val REFERRER_WAIT_MILLIS = 5_000L
+        private const val KEY_LAST_BACKGROUND = "last_background_ms"
         private val onExecutor = ThreadLocal<Boolean>()
     }
 
@@ -52,6 +54,13 @@ internal class AnglerCore(
         private set
     private var flusher: Flusher? = null
     private var lifecycleObserver: LifecycleObserver? = null
+
+    /** Set once this process has seen the app in the foreground (its cold-start launch). */
+    private var sawFirstForeground = false
+
+    /** While the first install waits for the referrer, a launch queues behind app_installed. */
+    private var installPending = false
+    private val afterInstall = ArrayList<() -> Unit>()
 
     /** Cached GAID; read at configure and on each new session (design §8). */
     @Volatile private var adInfo = AdIdInfo(null, false)
@@ -114,6 +123,10 @@ internal class AnglerCore(
             Log.warning("configure: workspaceId and token are required")
             return
         }
+        if (HttpUrlConnectionTransport.endpoint(config.domain, config.workspaceId) == null) {
+            Log.error("configure: invalid domain '${config.domain}'; expected a host such as data.getangler.ai")
+            return
+        }
         Log.debugEnabled = config.debugLogging
         configuration = config
 
@@ -125,24 +138,26 @@ internal class AnglerCore(
         val isNewInstall = identity.ensureAid().second
         if (!identity.isEnabled) {
             events.removeAll()
-        } else {
+        } else if (isNewInstall) {
             val now = clock.nowMillis()
-            val ad = adInfo
-            val installedId = if (isNewInstall) uuid() else null
-            val launchedId = uuid()
-            val recordLifecycle = { referrerString: String? ->
+            val installedId = uuid()
+            installPending = true
+            awaitInstallReferrer { referrerString ->
                 if (config.trackLifecycleEvents) {
-                    installedId?.let { record(TrackCall("app_installed", null, null, null), now, it, ad, referrerString) }
-                    record(TrackCall("app_launched", null, null, null), now, launchedId, ad, null)
+                    record(TrackCall("app_installed", null, null, null), now, installedId, adInfo, referrerString)
                 }
+                installPending = false
+                afterInstall.toList().also { afterInstall.clear() }.forEach { it() }
             }
-            if (isNewInstall) awaitInstallReferrer(recordLifecycle) else recordLifecycle(null)
         }
 
+        // The cold-start app_launched is recorded on the first ON_START, not here: configure also
+        // runs for background starts (FCM, WorkManager, receivers), and the URL that opened the
+        // app is delivered (Activity.onCreate) after Application.onCreate. ProcessLifecycleOwner
+        // replays ON_START to an observer added after the app has started.
         val observer = LifecycleObserver(
-            clock,
-            onForeground = { _, gap -> post { didEnterForeground(gap) } },
-            onBackground = { post { if ((eventQueue?.count ?: 0) > 0) flusher?.flush() } },
+            onForeground = { val at = clock.nowMillis(); val id = uuid(); post { didEnterForeground(at, id) } },
+            onBackground = { val at = clock.nowMillis(); post { didEnterBackground(at) } },
         )
         lifecycleObserver = observer
         attachLifecycle(observer)
@@ -206,14 +221,34 @@ internal class AnglerCore(
         }
     }
 
-    private fun didEnterForeground(backgroundedMillis: Long?) {
+    private fun didEnterBackground(at: Long) {
+        // Persisted, so a later process can tell how long the app was away.
+        store.putString(KEY_LAST_BACKGROUND, at.toString())
+        if ((eventQueue?.count ?: 0) > 0) flusher?.flush()
+    }
+
+    /**
+     * A cold start's first foreground, or a return after 30+ minutes in the background, is a new
+     * session (design §6.3, §9): `app_launched`, and a session URL from before that background
+     * is cleared. A start without a background in between is ignored.
+     */
+    private fun didEnterForeground(at: Long, launchId: String) {
         val config = configuration ?: return
-        if (backgroundedMillis == null || !LifecycleObserver.isNewSession(backgroundedMillis)) return
-        attribution.clearSessionUrl()
-        adInfo = adIds.fetch()
-        if (config.trackLifecycleEvents) {
-            record(TrackCall("app_launched", null, null, null), clock.nowMillis(), uuid(), adInfo, null)
+        val lastBackground = store.getString(KEY_LAST_BACKGROUND)?.toLongOrNull()
+        val coldStart = !sawFirstForeground
+        if (!coldStart && lastBackground == null) return
+        sawFirstForeground = true
+        store.putString(KEY_LAST_BACKGROUND, null)
+
+        var newSession = coldStart
+        if (lastBackground != null && LifecycleObserver.isNewSession(at - lastBackground)) {
+            attribution.clearSessionUrl(capturedAtOrBefore = lastBackground)
+            if (!coldStart) adInfo = adIds.fetch()
+            newSession = true
         }
+        if (!newSession || !config.trackLifecycleEvents || !identity.isEnabled) return
+        val launch = { record(TrackCall("app_launched", null, null, null), at, launchId, adInfo, null) }
+        if (installPending) afterInstall += launch else launch()
     }
 
     // MARK: threading
