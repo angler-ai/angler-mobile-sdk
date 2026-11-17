@@ -198,8 +198,10 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      # The version the example app was generated with (its Gradle wrapper matches it).
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: 3.35.x
           channel: stable
       - name: Publish the core to mavenLocal
         working-directory: android

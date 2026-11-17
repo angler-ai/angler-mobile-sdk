@@ -146,6 +146,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         if: steps.check.outputs.published != 'true'
         with:
+          flutter-version: 3.35.x
           channel: stable
       - name: Copy the Swift core and check the package
         if: steps.check.outputs.published != 'true'
