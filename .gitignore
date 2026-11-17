@@ -28,3 +28,6 @@ pubspec.lock
 # Swift core copied into the wrappers at build/pack time (see plans 05 and 06)
 react-native/ios/vendor/
 flutter/ios/Classes/vendor/
+
+# Example app local credentials
+examples/ios/Local.xcconfig
