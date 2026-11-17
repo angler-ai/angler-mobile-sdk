@@ -64,6 +64,7 @@ public enum Angler {
             scheduler: DispatchScheduler(queue: queue),
             lifecycle: .system,
             backgroundTasks: backgroundTasks,
+            protectedData: .system,
             queue: queue
         )
     }()

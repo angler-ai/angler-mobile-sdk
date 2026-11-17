@@ -22,7 +22,8 @@ struct LifecycleNotifications {
             // a URL that opened the app has been delivered.
             foreground: UIApplication.didBecomeActiveNotification,
             isActive: {
-                Thread.isMainThread && MainActor.assumeIsolated { UIApplication.shared.applicationState == .active }
+                guard Thread.isMainThread, let app = UIApplication.anglerShared else { return false }
+                return MainActor.assumeIsolated { app.applicationState == .active }
             }
         )
         #else
@@ -48,4 +49,29 @@ final class LifecycleObserver {
     }
 
     deinit { tokens.forEach(center.removeObserver) }
+}
+
+/// Whether protected files and UserDefaults can be read. They can't before the first unlock
+/// after a reboot, when the app may still be launched in the background (VoIP, location).
+struct ProtectedDataGate {
+    var center: NotificationCenter
+    var becameAvailable: Notification.Name
+    var isAvailable: () -> Bool
+
+    /// UIKit's protected-data state on iOS; nil on the macOS test host.
+    static var system: ProtectedDataGate? {
+        #if canImport(UIKit) && os(iOS)
+        return ProtectedDataGate(
+            center: .default,
+            becameAvailable: UIApplication.protectedDataDidBecomeAvailableNotification,
+            isAvailable: {
+                // Only knowable on the main thread; elsewhere assume the common case.
+                guard Thread.isMainThread, let app = UIApplication.anglerShared else { return true }
+                return MainActor.assumeIsolated { app.isProtectedDataAvailable }
+            }
+        )
+        #else
+        return nil
+        #endif
+    }
 }

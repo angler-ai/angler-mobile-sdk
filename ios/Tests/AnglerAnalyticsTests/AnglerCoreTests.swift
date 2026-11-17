@@ -25,7 +25,7 @@ final class AnglerCoreTests: XCTestCase {
     override func tearDownWithError() throws { try? FileManager.default.removeItem(at: dir) }
 
     private func makeCore(transport: FakeTransport? = nil, center: NotificationCenter? = nil,
-                          isActive: (() -> Bool)? = nil) -> AnglerCore {
+                          isActive: (() -> Bool)? = nil, protectedData: ProtectedDataGate? = nil) -> AnglerCore {
         let lock = NSLock()
         return AnglerCore(
             store: store,
@@ -43,7 +43,8 @@ final class AnglerCoreTests: XCTestCase {
             scheduler: scheduler,
             lifecycle: LifecycleNotifications(center: center ?? self.center, background: .init("bg"),
                                               foreground: .init("fg"), isActive: isActive),
-            backgroundTasks: nil
+            backgroundTasks: nil,
+            protectedData: protectedData
         )
     }
 
@@ -208,6 +209,28 @@ final class AnglerCoreTests: XCTestCase {
         core.track("product_viewed")
         XCTAssertNil(core.configuration(sync: ()), "an endpoint that can't be built must not configure the SDK")
         XCTAssertEqual(core.queuedBodies().count, 0)
+    }
+
+    func testConfigureWaitsForProtectedData() {
+        transport.defaultStatus = nil
+        // A background launch before the first unlock after a reboot: UserDefaults reads as empty.
+        var available = false
+        let gateCenter = NotificationCenter()
+        let core = makeCore(protectedData: ProtectedDataGate(center: gateCenter, becameAvailable: .init("unlocked"),
+                                                             isAvailable: { available }))
+        core.configure(config(lifecycle: true))
+        core.track("product_viewed")
+        XCTAssertNil(core.configuration(sync: ()), "not configured while the device is locked")
+        XCTAssertNil(store.string("aid"), "no install ID minted while locked")
+
+        available = true
+        gateCenter.post(name: .init("unlocked"), object: nil)
+        core.waitUntilIdle()
+        XCTAssertNotNil(core.configuration(sync: ()))
+        XCTAssertEqual(names(core), ["app_installed"])
+        gateCenter.post(name: .init("unlocked"), object: nil)
+        core.configure(config(lifecycle: true))
+        XCTAssertEqual(names(core), ["app_installed"], "configures once")
     }
 
     func testTrackBeforeConfigureDropped() {

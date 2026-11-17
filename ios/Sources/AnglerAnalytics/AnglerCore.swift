@@ -13,11 +13,11 @@ protocol BackgroundTasking {
 /// `beginBackgroundTask` / `endBackgroundTask`, always called on the main thread.
 struct UIKitBackgroundTasks: BackgroundTasking {
     func begin() -> Int? {
-        guard Thread.isMainThread else { return nil }
+        guard Thread.isMainThread, let app = UIApplication.anglerShared else { return nil }
         return MainActor.assumeIsolated {
             let box = TaskIdBox()
-            box.id = UIApplication.shared.beginBackgroundTask(withName: "ai.getangler.analytics.flush") {
-                UIApplication.shared.endBackgroundTask(box.id)
+            box.id = app.beginBackgroundTask(withName: "ai.getangler.analytics.flush") {
+                app.endBackgroundTask(box.id)
             }
             return box.id == .invalid ? nil : box.id.rawValue
         }
@@ -32,7 +32,7 @@ struct UIKitBackgroundTasks: BackgroundTasking {
         guard let id else { return }
         DispatchQueue.main.async {
             MainActor.assumeIsolated {
-                UIApplication.shared.endBackgroundTask(UIBackgroundTaskIdentifier(rawValue: id))
+                UIApplication.anglerShared?.endBackgroundTask(UIBackgroundTaskIdentifier(rawValue: id))
             }
         }
     }
@@ -57,6 +57,9 @@ final class AnglerCore {
     private let scheduler: Scheduler
     private let lifecycleNotifications: LifecycleNotifications?
     private let backgroundTasks: BackgroundTasking?
+    private let protectedData: ProtectedDataGate?
+    private var deferredConfig: AnglerConfiguration?
+    private var protectedDataToken: NSObjectProtocol?
 
     private let store: KeyValueStore
     private let identity: IdentityStore
@@ -80,6 +83,7 @@ final class AnglerCore {
          scheduler: Scheduler,
          lifecycle: LifecycleNotifications?,
          backgroundTasks: BackgroundTasking?,
+         protectedData: ProtectedDataGate? = nil,
          queue: DispatchQueue = DispatchQueue(label: AnglerCore.queueLabel)) {
         self.clock = clock
         self.queueDirectory = queueDirectory
@@ -90,6 +94,7 @@ final class AnglerCore {
         self.scheduler = scheduler
         self.lifecycleNotifications = lifecycle
         self.backgroundTasks = backgroundTasks
+        self.protectedData = protectedData
         self.queue = queue
         self.store = store
         identity = IdentityStore(store: store)
@@ -101,6 +106,40 @@ final class AnglerCore {
 
     func configure(_ config: AnglerConfiguration) {
         startObservingLifecycle()
+        if deferUntilProtectedDataAvailable(config) { return }
+        queue.async { self.doConfigure(config) }
+    }
+
+    /// Before the first unlock after a reboot, UserDefaults reads as empty: configuring then
+    /// would mint a new install ID and send a duplicate app_installed. Waits for the unlock
+    /// instead. Returns true if configure was deferred.
+    private func deferUntilProtectedDataAvailable(_ config: AnglerConfiguration) -> Bool {
+        guard let gate = protectedData else { return false }
+        observerLock.lock()
+        defer { observerLock.unlock() }
+        if protectedDataToken == nil {
+            guard !gate.isAvailable() else { return false }
+            Log.debug("configure: waiting for the device to be unlocked")
+            deferredConfig = config
+            protectedDataToken = gate.center.addObserver(forName: gate.becameAvailable, object: nil, queue: nil) { [weak self] _ in
+                self?.protectedDataBecameAvailable()
+            }
+            // It may have become available between the check and the observer.
+            if gate.isAvailable() {
+                DispatchQueue.main.async { [weak self] in self?.protectedDataBecameAvailable() }
+            }
+            return true
+        }
+        if deferredConfig != nil { return true } // still waiting; the first config wins
+        return false
+    }
+
+    private func protectedDataBecameAvailable() {
+        observerLock.lock()
+        let config = deferredConfig
+        deferredConfig = nil
+        observerLock.unlock()
+        guard let config else { return }
         queue.async { self.doConfigure(config) }
     }
 
