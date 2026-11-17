@@ -26,6 +26,11 @@ class ArgsParserTest {
         assertEquals("flutter", c.wrapper)
     }
 
+    @Test fun fractionalFlushIntervalRoundsUp() {
+        assertEquals(1L, ArgsParser.configuration(mapOf("workspaceId" to "ws", "token" to "t", "flushIntervalSeconds" to 0.5))!!.flushIntervalSeconds)
+        assertEquals(3L, ArgsParser.configuration(mapOf("workspaceId" to "ws", "token" to "t", "flushIntervalSeconds" to 2.5))!!.flushIntervalSeconds)
+    }
+
     @Test fun missingTokenReturnsNull() = assertNull(ArgsParser.configuration(mapOf("workspaceId" to "ws")))
 
     @Test fun jsonMapAndStringMap() {

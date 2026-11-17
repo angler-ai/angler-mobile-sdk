@@ -26,6 +26,11 @@ class ConfigParserTest {
         assertEquals("react-native", c.wrapper)
     }
 
+    @Test fun fractionalFlushIntervalRoundsUp() {
+        assertEquals(1L, ConfigParser.parse("""{"workspaceId":"ws","token":"t","flushIntervalSeconds":0.5}""")!!.flushIntervalSeconds)
+        assertEquals(3L, ConfigParser.parse("""{"workspaceId":"ws","token":"t","flushIntervalSeconds":2.5}""")!!.flushIntervalSeconds)
+    }
+
     @Test fun missingRequiredFieldsReturnNull() = assertNull(ConfigParser.parse("{}"))
 
     @Test fun invalidJsonReturnsNull() = assertNull(ConfigParser.parse("nope"))

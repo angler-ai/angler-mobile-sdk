@@ -18,7 +18,8 @@ internal object ArgsParser {
             clientId = (args["clientId"] as? String)?.takeIf { it.isNotEmpty() },
             trackLifecycleEvents = args["trackLifecycleEvents"] as? Boolean ?: d.trackLifecycleEvents,
             flushAt = (args["flushAt"] as? Number)?.toInt() ?: d.flushAt,
-            flushIntervalSeconds = (args["flushIntervalSeconds"] as? Number)?.toLong() ?: d.flushIntervalSeconds,
+            // Whole seconds on Android: round a fraction up so 0.5 doesn't become 0 (no timer).
+            flushIntervalSeconds = (args["flushIntervalSeconds"] as? Number)?.let { Math.ceil(it.toDouble()).toLong() } ?: d.flushIntervalSeconds,
             maxQueueSize = (args["maxQueueSize"] as? Number)?.toInt() ?: d.maxQueueSize,
             debugLogging = args["debugLogging"] as? Boolean ?: d.debugLogging,
         ).apply { wrapper = "flutter" }

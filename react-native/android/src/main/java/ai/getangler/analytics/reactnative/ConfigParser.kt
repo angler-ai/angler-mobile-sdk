@@ -19,7 +19,8 @@ internal object ConfigParser {
             clientId = o.stringOrNull("clientId"),
             trackLifecycleEvents = if (o.has("trackLifecycleEvents")) o.optBoolean("trackLifecycleEvents", defaults.trackLifecycleEvents) else defaults.trackLifecycleEvents,
             flushAt = if (o.has("flushAt")) o.optInt("flushAt", defaults.flushAt) else defaults.flushAt,
-            flushIntervalSeconds = if (o.has("flushIntervalSeconds")) o.optLong("flushIntervalSeconds", defaults.flushIntervalSeconds) else defaults.flushIntervalSeconds,
+            // Whole seconds on Android: round a fraction up so 0.5 doesn't become 0 (no timer).
+            flushIntervalSeconds = if (o.has("flushIntervalSeconds")) Math.ceil(o.optDouble("flushIntervalSeconds", defaults.flushIntervalSeconds.toDouble())).toLong() else defaults.flushIntervalSeconds,
             maxQueueSize = if (o.has("maxQueueSize")) o.optInt("maxQueueSize", defaults.maxQueueSize) else defaults.maxQueueSize,
             debugLogging = if (o.has("debugLogging")) o.optBoolean("debugLogging", defaults.debugLogging) else defaults.debugLogging,
         ).apply { wrapper = "react-native" }
