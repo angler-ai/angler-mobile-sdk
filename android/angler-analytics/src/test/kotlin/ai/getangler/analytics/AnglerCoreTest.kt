@@ -467,6 +467,31 @@ class AnglerCoreTest {
         assertNull("the referrer never sets the session URL", events[2]["url"])
     }
 
+    @Test fun installSurvivesProcessDeathDuringReferrerWait() {
+        transport.defaultStatus = null
+        val first = makeCore()
+        first.configure(config(lifecycle = true))
+        first.waitUntilIdle()
+        // The process dies here: the referrer never answered and the 5 s wait never ended.
+        assertEquals(emptyList<String>(), names(first))
+
+        val second = makeCore()
+        second.configure(config(lifecycle = true))
+        second.waitUntilIdle()
+        assertEquals("the next launch asks for the referrer again", 2, referrer.fetches)
+        referrer.answer("gclid=late")
+        val events = second.queuedBodies()
+        assertEquals(listOf("app_installed"), names(second))
+        assertEquals(JsonValue.Str("gclid=late"), events[0]["referrer"])
+        assertEquals("keeps the first launch's time", JsonValue.Str("2025-11-17T18:04:05.123Z"), events[0]["timestamp"])
+
+        val third = makeCore()
+        third.configure(config(lifecycle = true))
+        third.waitUntilIdle()
+        assertEquals("finished installs aren't redone", 2, referrer.fetches)
+        assertEquals(listOf("app_installed"), names(third))
+    }
+
     @Test fun installedNotBlockedByHangingReferrer() {
         transport.defaultStatus = null
         val core = makeCore()

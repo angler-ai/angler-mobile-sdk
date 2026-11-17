@@ -42,6 +42,8 @@ internal class AnglerCore(
         const val BATCH_SIZE = 100
         const val REFERRER_WAIT_MILLIS = 5_000L
         private const val KEY_LAST_BACKGROUND = "last_background_ms"
+        /** First-install time, kept until app_installed is queued (survives a kill mid-wait). */
+        private const val KEY_INSTALL_PENDING = "install_pending_ms"
         private val onExecutor = ThreadLocal<Boolean>()
     }
 
@@ -142,16 +144,20 @@ internal class AnglerCore(
 
         adInfo = adIds.fetch()
         val isNewInstall = identity.ensureAid().second
+        if (isNewInstall) store.putString(KEY_INSTALL_PENDING, clock.nowMillis().toString())
+        val installAt = store.getString(KEY_INSTALL_PENDING)?.toLongOrNull()
         if (!identity.isEnabled) {
             events.removeAll()
-        } else if (isNewInstall) {
-            val now = clock.nowMillis()
+            store.putString(KEY_INSTALL_PENDING, null)
+        } else if (installAt != null) {
+            // A first install (or one whose referrer wait was cut short by the process dying).
             val installedId = uuid()
             installPending = true
             awaitInstallReferrer { referrerString ->
                 if (config.trackLifecycleEvents) {
-                    record(TrackCall("app_installed", null, null, null), now, installedId, adInfo, referrerString)
+                    record(TrackCall("app_installed", null, null, null), installAt, installedId, adInfo, referrerString)
                 }
+                store.putString(KEY_INSTALL_PENDING, null)
                 installPending = false
                 afterInstall.toList().also { afterInstall.clear() }.forEach { it() }
             }
