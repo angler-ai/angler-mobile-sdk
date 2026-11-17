@@ -1,0 +1,77 @@
+{
+  "cases": [
+    {
+      "name": "cart_line_added",
+      "input": "AnglerData(cartLine: quantity 2, cost 58 USD, merchandise variant-1 with sku, title, price 29 USD, image and product)",
+      "expected": {
+        "cartLine": {
+          "quantity": 2,
+          "cost": { "totalAmount": { "amount": 58, "currencyCode": "USD" } },
+          "merchandise": {
+            "id": "variant-1",
+            "sku": "SKU-1",
+            "title": "Blue / M",
+            "price": { "amount": 29, "currencyCode": "USD" },
+            "image": { "src": "https://cdn.example.com/v1.jpg" },
+            "product": {
+              "id": "product-1",
+              "title": "Linen Shirt",
+              "vendor": "Example",
+              "type": "Shirts",
+              "url": "https://shop.example.com/products/linen-shirt"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "checkout_with_discounts",
+      "input": "AnglerData(checkout: token, currency, total 49.5 USD, a percentage and an amount discount, one line item with a discount allocation, shipping city/countryCode/zip)",
+      "expected": {
+        "checkout": {
+          "token": "chk-1",
+          "currencyCode": "USD",
+          "totalPrice": { "amount": 49.5, "currencyCode": "USD" },
+          "discountApplications": [
+            { "title": "SUMMER", "type": "DISCOUNT_CODE", "value": { "percentage": 10 } },
+            { "title": "Free gift", "type": "AUTOMATIC", "value": { "amount": 5, "currencyCode": "USD" } }
+          ],
+          "lineItems": [
+            {
+              "id": "li-1",
+              "quantity": 1,
+              "title": "Linen Shirt",
+              "variant": { "id": "variant-1" },
+              "discountAllocations": [
+                {
+                  "amount": { "amount": 2.9, "currencyCode": "USD" },
+                  "discountApplication": { "title": "SUMMER", "value": { "percentage": 10 } }
+                }
+              ]
+            }
+          ],
+          "shippingAddress": { "city": "Austin", "countryCode": "US", "zip": "78701" }
+        }
+      }
+    },
+    {
+      "name": "search_and_custom_data",
+      "input": "AnglerData(searchResult: query and two variants, customData: one name/value pair)",
+      "expected": {
+        "searchResult": { "query": "linen", "productVariants": [{ "id": "variant-1" }, { "id": "variant-2" }] },
+        "customData": [{ "name": "source", "value": "home_banner" }]
+      }
+    },
+    {
+      "name": "form_submitted",
+      "input": "AnglerData(form: id, action, one input element)",
+      "expected": {
+        "form": {
+          "id": "newsletter",
+          "action": "/subscribe",
+          "elements": [{ "name": "email", "type": "email", "tagName": "INPUT" }]
+        }
+      }
+    }
+  ]
+}

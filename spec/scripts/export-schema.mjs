@@ -31,16 +31,24 @@ try {
     writeFileSync(source, git('show', `${ref}:${schemaPath}`));
   }
   const loader = join(tmp, 'load.ts');
+  // Also exports the named data types (WorkspaceEventBodyMoney → Money, …) so the typed SDK
+  // models (scripts/generate-models.mjs) can reuse data-api's names.
   writeFileSync(
     loader,
-    `import { WorkspacesEventsPostBody } from ${JSON.stringify(source)};\n` +
-      'process.stdout.write(JSON.stringify(WorkspacesEventsPostBody));\n'
+    `import * as m from ${JSON.stringify(source)};\n` +
+      'const types = Object.fromEntries(Object.entries(m)\n' +
+      '  .filter(([k]) => /^WorkspaceEvents?Body[A-Z]/.test(k))\n' +
+      "  .map(([k, v]) => [k.replace(/^WorkspaceEvents?Body/, ''), v]));\n" +
+      'process.stdout.write(JSON.stringify({ body: m.WorkspacesEventsPostBody, types }));\n'
   );
   const json = execFileSync('npx', ['--yes', 'tsx', loader], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  const schema = { $comment: `exported from data-api ${sha}`, ...JSON.parse(json) };
+  const { body, types } = JSON.parse(json);
+  const comment = `exported from data-api ${sha}`;
   const out = join(specDir, 'schema', 'events-post-body.schema.json');
-  writeFileSync(out, JSON.stringify(schema, null, 2) + '\n');
-  console.log(`wrote ${out} (data-api ${sha})`);
+  writeFileSync(out, JSON.stringify({ $comment: comment, ...body }, null, 2) + '\n');
+  const typesOut = join(specDir, 'schema', 'event-data-types.json');
+  writeFileSync(typesOut, JSON.stringify({ $comment: comment, ...types }, null, 2) + '\n');
+  console.log(`wrote ${out} and ${typesOut} (data-api ${sha})`);
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }
