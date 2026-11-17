@@ -1,0 +1,93 @@
+{
+  "cases": [
+    {
+      "name": "gclid_only",
+      "input": "https://shop.example.com/p/1?gclid=abc123",
+      "expected": {
+        "gclid": "abc123"
+      }
+    },
+    {
+      "name": "custom_scheme_multiple",
+      "input": "myapp://product/42?utm_source=meta&fbclid=IwAR0xyz&ttclid=tt1",
+      "expected": {
+        "fbclid": "IwAR0xyz",
+        "ttclid": "tt1"
+      }
+    },
+    {
+      "name": "sccid_renamed",
+      "input": "https://x.com/?ScCid=sc-9",
+      "expected": {
+        "sccid": "sc-9"
+      }
+    },
+    {
+      "name": "case_sensitive_names",
+      "input": "https://x.com/?GCLID=no&sccid=no",
+      "expected": {}
+    },
+    {
+      "name": "first_occurrence_wins",
+      "input": "https://x.com/?gclid=first&gclid=second",
+      "expected": {
+        "gclid": "first"
+      }
+    },
+    {
+      "name": "empty_value_skipped",
+      "input": "https://x.com/?gclid=&wbraid=w1",
+      "expected": {
+        "wbraid": "w1"
+      }
+    },
+    {
+      "name": "percent_decoded_plus_literal",
+      "input": "https://x.com/?epik=a%2Fb+c",
+      "expected": {
+        "epik": "a/b+c"
+      }
+    },
+    {
+      "name": "value_with_equals",
+      "input": "https://x.com/?gbraid=0AAA==",
+      "expected": {
+        "gbraid": "0AAA=="
+      }
+    },
+    {
+      "name": "fragment_ignored",
+      "input": "https://x.com/?rdt_cid=r1#gclid=frag",
+      "expected": {
+        "rdt_cid": "r1"
+      }
+    },
+    {
+      "name": "invalid_percent_skipped",
+      "input": "https://x.com/?gclid=%E0%A4%A&gad_source=1",
+      "expected": {
+        "gad_source": "1"
+      }
+    },
+    {
+      "name": "no_query",
+      "input": "myapp://home",
+      "expected": {}
+    },
+    {
+      "name": "all_ids",
+      "input": "https://x.com/?gclid=1&gbraid=2&wbraid=3&gad_source=4&fbclid=5&ttclid=6&ScCid=7&rdt_cid=8&epik=9",
+      "expected": {
+        "gclid": "1",
+        "gbraid": "2",
+        "wbraid": "3",
+        "gad_source": "4",
+        "fbclid": "5",
+        "ttclid": "6",
+        "sccid": "7",
+        "rdt_cid": "8",
+        "epik": "9"
+      }
+    }
+  ]
+}
