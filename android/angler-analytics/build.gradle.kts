@@ -1,8 +1,10 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.vanniktech.maven.publish")
 }
 
 group = property("GROUP") as String
@@ -51,4 +53,37 @@ dependencies {
 
 tasks.withType<Test>().configureEach {
     systemProperty("anglerFixturesDir", rootProject.file("../spec/fixtures").absolutePath)
+}
+
+// Published to Maven Central (Central Portal) as ai.getangler:analytics. Signing uses the
+// ORG_GRADLE_PROJECT_signingInMemoryKey / ...KeyPassword env vars in the release workflow; local
+// publishToMavenLocal runs unsigned.
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    if (providers.gradleProperty("signingInMemoryKey").isPresent) signAllPublications()
+    coordinates("ai.getangler", "analytics", version.toString())
+
+    pom {
+        name.set("Angler Analytics")
+        description.set("Angler app events and ad-attribution signals for Android (Kotlin and Java).")
+        url.set("https://github.com/angler-ai/angler-mobile-sdk")
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+        developers {
+            developer {
+                id.set("angler-ai")
+                name.set("Angler AI")
+                url.set("https://getangler.ai")
+            }
+        }
+        scm {
+            url.set("https://github.com/angler-ai/angler-mobile-sdk")
+            connection.set("scm:git:https://github.com/angler-ai/angler-mobile-sdk.git")
+            developerConnection.set("scm:git:ssh://git@github.com/angler-ai/angler-mobile-sdk.git")
+        }
+    }
 }
