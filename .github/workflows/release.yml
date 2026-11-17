@@ -1,0 +1,174 @@
+name: Release
+
+# A plain semver tag (1.2.3 or 1.2.3-rc.1) publishes all four SDKs at that version:
+# Maven Central first (the wrappers' Android side depends on it), then npm and pub.dev, then the
+# GitHub release. SPM needs nothing beyond the tag. Every publish step skips a registry that
+# already has the version, so re-running a partly failed release is safe.
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+*']
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERSION: ${{ github.ref_name }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Tag matches VERSION
+        run: |
+          file_version="$(tr -d '[:space:]' < VERSION)"
+          if [ "$file_version" != "$VERSION" ]; then
+            echo "::error::Tag $VERSION doesn't match VERSION ($file_version). Nothing was published."
+            exit 1
+          fi
+      - name: All packages share VERSION
+        run: node scripts/sync-version.mjs --check
+
+  tests:
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+    with:
+      all: true
+    permissions:
+      contents: read
+      pull-requests: read
+
+  maven:
+    needs: tests
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Already on Maven Central?
+        id: check
+        run: |
+          url="https://repo1.maven.org/maven2/ai/getangler/analytics/$VERSION/analytics-$VERSION.pom"
+          if curl -sfI "$url" > /dev/null; then
+            echo "ai.getangler:analytics:$VERSION is already published; skipping."
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish and release to Maven Central
+        if: steps.check.outputs.published != 'true'
+        working-directory: android
+        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+      # The wrappers depend on this artifact, so wait until Central has synced it (10-30 min).
+      - name: Wait until the artifact is downloadable
+        run: |
+          url="https://repo1.maven.org/maven2/ai/getangler/analytics/$VERSION/analytics-$VERSION.pom"
+          for i in $(seq 1 45); do
+            if curl -sfI "$url" > /dev/null; then echo "available after ~$i min"; exit 0; fi
+            sleep 60
+          done
+          echo "::error::$url still not available after 45 minutes"
+          exit 1
+
+  npm:
+    needs: maven
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: react-native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing (OIDC, no stored token) needs npm 11.5 or later.
+      - run: npm install -g npm@11
+      - name: Already on npm?
+        id: check
+        run: |
+          if npm view "@angler-ai/react-native-analytics@$VERSION" version > /dev/null 2>&1; then
+            echo "@angler-ai/react-native-analytics@$VERSION is already published; skipping."
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check.outputs.published != 'true'
+        run: npm ci
+      - name: Copy the Swift core and check the tarball
+        if: steps.check.outputs.published != 'true'
+        run: node scripts/sync-native.mjs && node --test scripts/__tests__/
+      - name: Publish
+        if: steps.check.outputs.published != 'true'
+        run: |
+          tag=()
+          if [[ "$VERSION" == *-* ]]; then tag=(--tag next); fi
+          npm publish --access public --provenance "${tag[@]}"
+
+  pub:
+    needs: maven
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: flutter
+    steps:
+      - uses: actions/checkout@v4
+      - name: Already on pub.dev?
+        id: check
+        run: |
+          if curl -sf "https://pub.dev/api/packages/angler_analytics/versions/$VERSION" > /dev/null; then
+            echo "angler_analytics $VERSION is already published; skipping."
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+      # setup-dart sets up the OIDC token pub.dev's automated publishing uses.
+      - uses: dart-lang/setup-dart@v1
+        if: steps.check.outputs.published != 'true'
+      - uses: subosito/flutter-action@v2
+        if: steps.check.outputs.published != 'true'
+        with:
+          channel: stable
+      - name: Copy the Swift core and check the package
+        if: steps.check.outputs.published != 'true'
+        run: scripts/sync_native.sh && scripts/check_package.sh
+      - name: Publish
+        if: steps.check.outputs.published != 'true'
+        run: flutter pub publish --force
+
+  github-release:
+    needs: [npm, pub]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION already exists; skipping."
+            exit 0
+          fi
+          flags=(--generate-notes)
+          if [[ "$VERSION" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$VERSION" "${flags[@]}"
