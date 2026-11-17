@@ -1,0 +1,28 @@
+PODS:
+  - angler_analytics (0.1.0):
+    - Flutter
+  - app_links (6.4.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - angler_analytics (from `.symlinks/plugins/angler_analytics/ios`)
+  - app_links (from `.symlinks/plugins/app_links/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  angler_analytics:
+    :path: ".symlinks/plugins/angler_analytics/ios"
+  app_links:
+    :path: ".symlinks/plugins/app_links/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  angler_analytics: b57beb80193545799b9f5cf1d720b00855ff72c7
+  app_links: 3dbc685f76b1693c66a6d9dd1e9ab6f73d97dc0a
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+
+PODFILE CHECKSUM: 1d5dafd78ce6948f2c78171ed42d3d9488cd9694
+
+COCOAPODS: 1.17.0
