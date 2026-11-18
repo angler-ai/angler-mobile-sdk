@@ -121,8 +121,10 @@ jobs:
           if [[ "$VERSION" == *-* ]]; then tag=(--tag next); fi
           npm publish --access public --provenance "${tag[@]}"
 
+  # Off until pub.dev automated publishing is set up: set the repo variable PUBLISH_PUB_DEV=true.
   pub:
     needs: maven
+    if: vars.PUBLISH_PUB_DEV == 'true'
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -157,6 +159,8 @@ jobs:
 
   github-release:
     needs: [npm, pub]
+    # A skipped pub job (pub.dev not set up yet) doesn't block the release.
+    if: ${{ !cancelled() && needs.npm.result == 'success' && contains(fromJSON('["success", "skipped"]'), needs.pub.result) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

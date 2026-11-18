@@ -1,6 +1,6 @@
 {
   "name": "@anglerai/react-native-analytics",
-  "version": "0.1.0",
+  "version": "0.1.0-rc.1",
   "description": "Angler app analytics and attribution for React Native (iOS and Android).",
   "license": "MIT",
   "main": "src/index.ts",
