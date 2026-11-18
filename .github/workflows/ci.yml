@@ -168,7 +168,7 @@ jobs:
         run: npm ci
       - name: Module tests and example build
         working-directory: examples/react-native/android
-        run: ./gradlew :angler-ai_react-native-analytics:testDebugUnitTest assembleDebug -PreactNativeArchitectures=arm64-v8a
+        run: ./gradlew :anglerai_react-native-analytics:testDebugUnitTest assembleDebug -PreactNativeArchitectures=arm64-v8a
 
   flutter:
     needs: changes
