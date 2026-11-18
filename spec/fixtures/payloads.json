@@ -1,0 +1,1973 @@
+{
+  "cases": [
+    {
+      "name": "standard_event_minimal",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {}
+      }
+    },
+    {
+      "name": "custom_event",
+      "input": {
+        "call": {
+          "name": "level_up",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "custom_event",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {},
+        "custom_event_name": "level_up"
+      }
+    },
+    {
+      "name": "properties_to_custom_data",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {
+            "customData": [
+              {
+                "name": "z",
+                "value": "0"
+              }
+            ]
+          },
+          "properties": {
+            "b": "2",
+            "a": "1"
+          },
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {
+          "customData": [
+            {
+              "name": "z",
+              "value": "0"
+            },
+            {
+              "name": "a",
+              "value": "1"
+            },
+            {
+              "name": "b",
+              "value": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "disallowed_data_key_dropped",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {
+            "productVariant": {
+              "id": "v1"
+            },
+            "foo": 1
+          },
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {
+          "productVariant": {
+            "id": "v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "full_attribution_ios",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": "cust-1",
+          "adIdName": "idfa",
+          "adId": "AAAA-1111",
+          "custom": {
+            "appsflyer_id": "af-1"
+          }
+        },
+        "attribution": {
+          "clickIds": {
+            "ttclid": "t1",
+            "gclid": "g1"
+          },
+          "fbc": "fb.1.1763402645123.IwAR0xyz",
+          "url": "myapp://p/1?gclid=g1"
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "1"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          },
+          {
+            "name": "customer_id",
+            "value": "cust-1"
+          },
+          {
+            "name": "idfa",
+            "value": "AAAA-1111"
+          },
+          {
+            "name": "gclid",
+            "value": "g1"
+          },
+          {
+            "name": "ttclid",
+            "value": "t1"
+          },
+          {
+            "name": "appsflyer_id",
+            "value": "af-1"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "1"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {},
+        "url": "myapp://p/1?gclid=g1",
+        "fbc": "fb.1.1763402645123.IwAR0xyz"
+      }
+    },
+    {
+      "name": "android_gaid",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "gaid",
+          "adId": "38400000-8cf0-11bd-b23e-10b96e40000d",
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "android"
+            ],
+            [
+              "os_version",
+              "14"
+            ],
+            [
+              "device_model_name",
+              "Pixel 8"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "carrier",
+              "T-Mobile"
+            ],
+            [
+              "screen_width",
+              "1080"
+            ],
+            [
+              "screen_height",
+              "2400"
+            ],
+            [
+              "screen_density",
+              "2.625"
+            ],
+            [
+              "cpu_cores",
+              "8"
+            ],
+            [
+              "ext_storage_in_gb",
+              "110"
+            ],
+            [
+              "free_ext_storage_in_gb",
+              "42"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "1"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (Android 14; Pixel 8; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (Android 14; Pixel 8; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          },
+          {
+            "name": "gaid",
+            "value": "38400000-8cf0-11bd-b23e-10b96e40000d"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "android"
+          },
+          {
+            "name": "os_version",
+            "value": "14"
+          },
+          {
+            "name": "device_model_name",
+            "value": "Pixel 8"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "carrier",
+            "value": "T-Mobile"
+          },
+          {
+            "name": "screen_width",
+            "value": "1080"
+          },
+          {
+            "name": "screen_height",
+            "value": "2400"
+          },
+          {
+            "name": "screen_density",
+            "value": "2.625"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "8"
+          },
+          {
+            "name": "ext_storage_in_gb",
+            "value": "110"
+          },
+          {
+            "name": "free_ext_storage_in_gb",
+            "value": "42"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "1"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {}
+      }
+    },
+    {
+      "name": "client_id_override",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": "crm-42",
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "crm-42",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {}
+      }
+    },
+    {
+      "name": "caller_event_id",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": "order-123-purchase"
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "order-123-purchase",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {}
+      }
+    },
+    {
+      "name": "empty_identifier_values_omitted",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": "",
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {
+            "x": ""
+          }
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {}
+      }
+    },
+    {
+      "name": "android_install_referrer",
+      "input": {
+        "call": {
+          "name": "app_installed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "gaid",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "android"
+            ],
+            [
+              "os_version",
+              "14"
+            ],
+            [
+              "device_model_name",
+              "Pixel 8"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "carrier",
+              "T-Mobile"
+            ],
+            [
+              "screen_width",
+              "1080"
+            ],
+            [
+              "screen_height",
+              "2400"
+            ],
+            [
+              "screen_density",
+              "2.625"
+            ],
+            [
+              "cpu_cores",
+              "8"
+            ],
+            [
+              "ext_storage_in_gb",
+              "110"
+            ],
+            [
+              "free_ext_storage_in_gb",
+              "42"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (Android 14; Pixel 8; native)"
+        },
+        "referrer": "gclid=Cj0KCQ&utm_source=google"
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "app_installed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (Android 14; Pixel 8; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "android"
+          },
+          {
+            "name": "os_version",
+            "value": "14"
+          },
+          {
+            "name": "device_model_name",
+            "value": "Pixel 8"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "carrier",
+            "value": "T-Mobile"
+          },
+          {
+            "name": "screen_width",
+            "value": "1080"
+          },
+          {
+            "name": "screen_height",
+            "value": "2400"
+          },
+          {
+            "name": "screen_density",
+            "value": "2.625"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "8"
+          },
+          {
+            "name": "ext_storage_in_gb",
+            "value": "110"
+          },
+          {
+            "name": "free_ext_storage_in_gb",
+            "value": "42"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {},
+        "referrer": "gclid=Cj0KCQ&utm_source=google"
+      }
+    },
+    {
+      "name": "unknown_device_property_dropped",
+      "input": {
+        "call": {
+          "name": "product_viewed",
+          "data": {},
+          "properties": {},
+          "eventId": null
+        },
+        "generatedEventId": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "clientIdOverride": null,
+        "identity": {
+          "aid": "a1b2c3d4-0000-4000-8000-000000000001",
+          "customerId": null,
+          "adIdName": "idfa",
+          "adId": null,
+          "custom": {}
+        },
+        "attribution": {
+          "clickIds": {},
+          "fbc": null,
+          "url": null
+        },
+        "device": {
+          "properties": [
+            [
+              "app_package",
+              "com.example.shop"
+            ],
+            [
+              "app_version_short",
+              "2.3.0"
+            ],
+            [
+              "app_version_long",
+              "230"
+            ],
+            [
+              "os",
+              "ios"
+            ],
+            [
+              "sdk_flavor",
+              "x"
+            ],
+            [
+              "os_version",
+              "17.4"
+            ],
+            [
+              "device_model_name",
+              "iPhone15,2"
+            ],
+            [
+              "device_timezone",
+              "America/Los_Angeles"
+            ],
+            [
+              "timezone_abbreviation",
+              "PST"
+            ],
+            [
+              "locale",
+              "en_US"
+            ],
+            [
+              "screen_width",
+              "1179"
+            ],
+            [
+              "screen_height",
+              "2556"
+            ],
+            [
+              "screen_density",
+              "3.0"
+            ],
+            [
+              "cpu_cores",
+              "6"
+            ],
+            [
+              "advertiser_tracking_enabled",
+              "0"
+            ],
+            [
+              "application_tracking_enabled",
+              "1"
+            ]
+          ],
+          "userAgent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)"
+        },
+        "referrer": null
+      },
+      "expected": {
+        "event_id": "6f1c0e1e-2b8f-4c5a-9a51-0f3b7d1e2a10",
+        "event_name": "product_viewed",
+        "timestamp": "2026-11-17T18:04:05.123Z",
+        "client_id": "a1b2c3d4-0000-4000-8000-000000000001",
+        "user_agent": "AnglerAnalytics/1.0.0 (iOS 17.4; iPhone15,2; native)",
+        "identifiers": [
+          {
+            "name": "aid",
+            "value": "a1b2c3d4-0000-4000-8000-000000000001"
+          }
+        ],
+        "device_properties": [
+          {
+            "name": "app_package",
+            "value": "com.example.shop"
+          },
+          {
+            "name": "app_version_short",
+            "value": "2.3.0"
+          },
+          {
+            "name": "app_version_long",
+            "value": "230"
+          },
+          {
+            "name": "os",
+            "value": "ios"
+          },
+          {
+            "name": "os_version",
+            "value": "17.4"
+          },
+          {
+            "name": "device_model_name",
+            "value": "iPhone15,2"
+          },
+          {
+            "name": "device_timezone",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "name": "timezone_abbreviation",
+            "value": "PST"
+          },
+          {
+            "name": "locale",
+            "value": "en_US"
+          },
+          {
+            "name": "screen_width",
+            "value": "1179"
+          },
+          {
+            "name": "screen_height",
+            "value": "2556"
+          },
+          {
+            "name": "screen_density",
+            "value": "3.0"
+          },
+          {
+            "name": "cpu_cores",
+            "value": "6"
+          },
+          {
+            "name": "advertiser_tracking_enabled",
+            "value": "0"
+          },
+          {
+            "name": "application_tracking_enabled",
+            "value": "1"
+          }
+        ],
+        "data": {}
+      }
+    }
+  ]
+}

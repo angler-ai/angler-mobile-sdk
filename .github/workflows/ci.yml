@@ -1,0 +1,216 @@
+name: CI
+
+# Runs each platform's checks only when its files (or the shared spec) change. The release
+# workflow calls this with `all: true` to run every platform.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      all:
+        description: Run every platform regardless of what changed
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.workflow_ref }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      spec: ${{ inputs.all || steps.filter.outputs.spec == 'true' }}
+      ios: ${{ inputs.all || steps.filter.outputs.ios == 'true' }}
+      android: ${{ inputs.all || steps.filter.outputs.android == 'true' }}
+      rn: ${{ inputs.all || steps.filter.outputs.rn == 'true' }}
+      flutter: ${{ inputs.all || steps.filter.outputs.flutter == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: ${{ !inputs.all }}
+        with:
+          filters: |
+            spec:
+              - 'spec/**'
+              - '.github/workflows/ci.yml'
+            ios:
+              - 'ios/**'
+              - 'Package.swift'
+              - 'spec/**'
+              - '.github/workflows/ci.yml'
+            android:
+              - 'android/**'
+              - 'spec/**'
+              - '.github/workflows/ci.yml'
+            rn:
+              - 'react-native/**'
+              - 'examples/react-native/**'
+              - 'ios/**'
+              - 'android/**'
+              - 'spec/**'
+              - '.github/workflows/ci.yml'
+            flutter:
+              - 'flutter/**'
+              - 'examples/flutter/**'
+              - 'ios/**'
+              - 'android/**'
+              - 'spec/**'
+              - '.github/workflows/ci.yml'
+
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: All packages share VERSION
+        run: node scripts/sync-version.mjs --check
+      - name: sync-version tests
+        run: node --test scripts/test/
+      - name: Typed models match the schema snapshot
+        run: node scripts/generate-models.mjs --check
+
+  spec:
+    needs: changes
+    if: needs.changes.outputs.spec == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: spec
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+
+  ios:
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests (macOS host)
+        run: swift test
+      - name: Unit tests (iOS simulator)
+        run: xcodebuild test -scheme AnglerAnalytics -destination 'platform=iOS Simulator,name=iPhone 16'
+      - name: Compiles for app extensions
+        run: |
+          xcrun --sdk iphonesimulator swiftc -typecheck -swift-version 5 -application-extension \
+            -target arm64-apple-ios15.0-simulator -module-name AnglerAnalytics \
+            $(find ios/Sources -name '*.swift')
+
+  android:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew :angler-analytics:testDebugUnitTest :angler-analytics:lint
+
+  rn:
+    needs: changes
+    if: needs.changes.outputs.rn == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: react-native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx jest
+      - run: npx tsc --noEmit
+      - name: Swift core copy and npm tarball contents
+        run: node --test scripts/__tests__/
+
+  # Builds the RN Android module (and the example app) against the core from mavenLocal.
+  rn-android:
+    needs: changes
+    if: needs.changes.outputs.rn == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Publish the core to mavenLocal
+        working-directory: android
+        run: ./gradlew publishToMavenLocal
+      - name: Install the example app
+        working-directory: examples/react-native
+        run: npm ci
+      - name: Module tests and example build
+        working-directory: examples/react-native/android
+        run: ./gradlew :anglerai_react-native-analytics:testDebugUnitTest assembleDebug -PreactNativeArchitectures=arm64-v8a
+
+  flutter:
+    needs: changes
+    if: needs.changes.outputs.flutter == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.24.x
+          channel: stable
+      - run: flutter test
+      - run: flutter analyze
+      - name: pub archive includes the Swift core
+        run: scripts/sync_native.sh && scripts/check_package.sh
+
+  # Builds the Flutter Android plugin (and the example app) against the core from mavenLocal.
+  flutter-android:
+    needs: changes
+    if: needs.changes.outputs.flutter == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      # The version the example app was generated with (its Gradle wrapper matches it).
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.35.x
+          channel: stable
+      - name: Publish the core to mavenLocal
+        working-directory: android
+        run: ./gradlew publishToMavenLocal
+      - name: Example build
+        working-directory: examples/flutter
+        run: flutter build apk --debug --target-platform android-arm64
+      - name: Plugin tests
+        working-directory: examples/flutter/android
+        run: ./gradlew :angler_analytics:testDebugUnitTest

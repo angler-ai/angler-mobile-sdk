@@ -1,0 +1,29 @@
+{
+  "cases": [
+    {
+      "name": "organic",
+      "input": "utm_source=google-play&utm_medium=organic",
+      "expected": {}
+    },
+    {
+      "name": "google_ads_gclid",
+      "input": "gclid=Cj0KCQ&utm_source=google&utm_medium=cpc",
+      "expected": {
+        "gclid": "Cj0KCQ"
+      }
+    },
+    {
+      "name": "multiple",
+      "input": "fbclid=fb1&gbraid=g1",
+      "expected": {
+        "fbclid": "fb1",
+        "gbraid": "g1"
+      }
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": {}
+    }
+  ]
+}

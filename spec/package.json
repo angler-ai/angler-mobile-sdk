@@ -1,0 +1,12 @@
+{
+  "name": "angler-mobile-sdk-spec",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/",
+    "export-schema": "node scripts/export-schema.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  }
+}

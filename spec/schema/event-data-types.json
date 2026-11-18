@@ -1,0 +1,2432 @@
+{
+  "$comment": "exported from data-api d36fffc",
+  "Attribute": {
+    "type": "object",
+    "nullable": true,
+    "required": [
+      "key"
+    ],
+    "properties": {
+      "key": {
+        "type": "string"
+      },
+      "value": {
+        "type": "string",
+        "nullable": true
+      }
+    },
+    "additionalProperties": false
+  },
+  "Cart": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "cost": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "totalAmount": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The estimated costs that the customer will pay at checkout."
+      },
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "A globally unique identifier."
+      },
+      "lines": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "cost": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "totalAmount": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "amount": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Decimal money amount."
+                    },
+                    "currencyCode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Currency of the money."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A monetary value with currency."
+                }
+              },
+              "additionalProperties": false,
+              "description": "The cost of the merchandise line that the buyer will pay at checkout."
+            },
+            "merchandise": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "A globally unique identifier."
+                },
+                "image": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "src": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The location of the image as a URL."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+                },
+                "inventoryItem": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+                    },
+                    "cost": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "amount": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Decimal money amount."
+                        },
+                        "currencyCode": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Currency of the money."
+                        }
+                      },
+                      "additionalProperties": false,
+                      "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+                },
+                "price": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "amount": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Decimal money amount."
+                    },
+                    "currencyCode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Currency of the money."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A monetary value with currency."
+                },
+                "product": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The ID of the product."
+                    },
+                    "title": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product’s title."
+                    },
+                    "untranslatedTitle": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product’s untranslated title."
+                    },
+                    "vendor": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product’s vendor name."
+                    },
+                    "type": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product type specified by the merchant."
+                    },
+                    "url": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The relative URL of the product."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "The product object that the product variant belongs to."
+                },
+                "sku": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The SKU (stock keeping unit) associated with the variant."
+                },
+                "title": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product variant’s title."
+                },
+                "untranslatedTitle": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product variant’s untranslated title."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Product variant of the line item."
+            },
+            "quantity": {
+              "type": "number",
+              "description": "The quantity of the merchandise that the customer intends to purchase."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Represents information about the merchandise in the cart."
+        }
+      },
+      "totalQuantity": {
+        "type": "number",
+        "description": "The total number of items in the cart."
+      }
+    },
+    "additionalProperties": false
+  },
+  "CartCost": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "totalAmount": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      }
+    },
+    "additionalProperties": false,
+    "description": "The estimated costs that the customer will pay at checkout."
+  },
+  "CartLine": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "cost": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "totalAmount": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The cost of the merchandise line that the buyer will pay at checkout."
+      },
+      "merchandise": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "A globally unique identifier."
+          },
+          "image": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "src": {
+                "type": "string",
+                "nullable": true,
+                "description": "The location of the image as a URL."
+              }
+            },
+            "additionalProperties": false,
+            "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+          },
+          "inventoryItem": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "nullable": true,
+                "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+              },
+              "cost": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "nullable": true,
+                    "description": "Decimal money amount."
+                  },
+                  "currencyCode": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Currency of the money."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+              }
+            },
+            "additionalProperties": false,
+            "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+          },
+          "price": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency."
+          },
+          "product": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "nullable": true,
+                "description": "The ID of the product."
+              },
+              "title": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product’s title."
+              },
+              "untranslatedTitle": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product’s untranslated title."
+              },
+              "vendor": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product’s vendor name."
+              },
+              "type": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product type specified by the merchant."
+              },
+              "url": {
+                "type": "string",
+                "nullable": true,
+                "description": "The relative URL of the product."
+              }
+            },
+            "additionalProperties": false,
+            "description": "The product object that the product variant belongs to."
+          },
+          "sku": {
+            "type": "string",
+            "nullable": true,
+            "description": "The SKU (stock keeping unit) associated with the variant."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product variant’s title."
+          },
+          "untranslatedTitle": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product variant’s untranslated title."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Product variant of the line item."
+      },
+      "quantity": {
+        "type": "number",
+        "description": "The quantity of the merchandise that the customer intends to purchase."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Represents information about the merchandise in the cart."
+  },
+  "CartLineCost": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "totalAmount": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      }
+    },
+    "additionalProperties": false,
+    "description": "The cost of the merchandise line that the buyer will pay at checkout."
+  },
+  "Checkout": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "attributes": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "required": [
+            "key"
+          ],
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": "A list of attributes accumulated throughout the checkout process."
+      },
+      "billingAddress": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "address1": {
+            "type": "string",
+            "nullable": true,
+            "description": "The first line of the address. This is usually the street address or a P.O. Box number."
+          },
+          "address2": {
+            "type": "string",
+            "nullable": true,
+            "description": "The second line of the address. This is usually an apartment, suite, or unit number."
+          },
+          "city": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of the city, district, village, or town."
+          },
+          "country": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of the country."
+          },
+          "countryCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "The two-letter code that represents the country, for example, US. The country codes generally follows ISO 3166-1 alpha-2 guidelines."
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true,
+            "description": "The customer’s first name."
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true,
+            "description": "The customer’s last name."
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "description": "The phone number for this mailing address as entered by the customer."
+          },
+          "province": {
+            "type": "string",
+            "nullable": true,
+            "description": "The region of the address, such as the province, state, or district."
+          },
+          "provinceCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "The two-letter code for the region. For example, ON."
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true,
+            "description": "The ZIP or postal code of the address."
+          },
+          "hashedPhone": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of phone in SHA256 (lower case)."
+          },
+          "hashedFirstName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of first name in SHA256 (lower case)."
+          },
+          "hashedLastName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of last name in SHA256 (lower case)."
+          },
+          "hashedZip": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of zip in SHA256 (lower case)."
+          }
+        },
+        "additionalProperties": false,
+        "description": "An address."
+      },
+      "currencyCode": {
+        "type": "string",
+        "nullable": true,
+        "description": "The three-letter code that represents the currency, for example, USD. Supported codes include standard ISO 4217 codes, legacy codes, and non-standard codes."
+      },
+      "discountApplications": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "allocationMethod": {
+              "type": "string",
+              "nullable": true,
+              "description": "The method by which the discount's value is applied to its entitled items."
+            },
+            "targetSelection": {
+              "type": "string",
+              "nullable": true,
+              "description": "How the discount amount is distributed on the discounted lines."
+            },
+            "targetType": {
+              "type": "string",
+              "nullable": true,
+              "description": "The type of line (i.e. line item or shipping line) on an order that the discount is applicable towards."
+            },
+            "title": {
+              "type": "string",
+              "nullable": true,
+              "description": "The customer-facing name of the discount. If the type of discount is a DISCOUNT_CODE, this title attribute represents the code of the discount."
+            },
+            "type": {
+              "type": "string",
+              "nullable": true,
+              "description": "The type of the discount."
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "amount": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Decimal money amount."
+                    },
+                    "currencyCode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Currency of the money."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A monetary value with currency."
+                },
+                {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "percentage": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "The percentage value of the object."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "The value of the percentage pricing object."
+                }
+              ],
+              "description": "The value of the discount."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Discount applications capture the intentions of a discount source at the time of application."
+        },
+        "description": "A list of discount applications."
+      },
+      "email": {
+        "type": "string",
+        "nullable": true,
+        "description": "The email attached to this checkout."
+      },
+      "hashedEmail": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of email in SHA256 (lower case)."
+      },
+      "lineItems": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "discountAllocations": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "amount": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "amount": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Decimal money amount."
+                      },
+                      "currencyCode": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Currency of the money."
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "A monetary value with currency."
+                  },
+                  "discountApplication": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "allocationMethod": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The method by which the discount's value is applied to its entitled items."
+                      },
+                      "targetSelection": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "How the discount amount is distributed on the discounted lines."
+                      },
+                      "targetType": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The type of line (i.e. line item or shipping line) on an order that the discount is applicable towards."
+                      },
+                      "title": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The customer-facing name of the discount. If the type of discount is a DISCOUNT_CODE, this title attribute represents the code of the discount."
+                      },
+                      "type": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The type of the discount."
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "amount": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "Decimal money amount."
+                              },
+                              "currencyCode": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Currency of the money."
+                              }
+                            },
+                            "additionalProperties": false,
+                            "description": "A monetary value with currency."
+                          },
+                          {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "percentage": {
+                                "type": "number",
+                                "nullable": true,
+                                "description": "The percentage value of the object."
+                              }
+                            },
+                            "additionalProperties": false,
+                            "description": "The value of the percentage pricing object."
+                          }
+                        ],
+                        "description": "The value of the discount."
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Discount applications capture the intentions of a discount source at the time of application."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "An amount discounting the line that has been allocated by a discount."
+              },
+              "description": "The discounts that have been applied to the checkout line item by a discount application."
+            },
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "description": "A globally unique identifier."
+            },
+            "quantity": {
+              "type": "number",
+              "nullable": true,
+              "description": "The quantity of the line item."
+            },
+            "sellingPlanAllocation": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "sellingPlan": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "A globally unique identifier."
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The name of the selling plan. For example, '6 weeks of prepaid granola, delivered weekly'."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A representation of how products and variants can be sold and purchased. For example, an individual selling plan could be '6 weeks of prepaid granola, delivered weekly'."
+                }
+              },
+              "additionalProperties": false,
+              "description": "The selling plan associated with the line item and the effect that each selling plan has on variants when they're purchased."
+            },
+            "title": {
+              "type": "string",
+              "nullable": true,
+              "description": "The title of the line item. Defaults to the product's title."
+            },
+            "variant": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "A globally unique identifier."
+                },
+                "image": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "src": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The location of the image as a URL."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+                },
+                "inventoryItem": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+                    },
+                    "cost": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "amount": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Decimal money amount."
+                        },
+                        "currencyCode": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Currency of the money."
+                        }
+                      },
+                      "additionalProperties": false,
+                      "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+                },
+                "price": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "amount": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Decimal money amount."
+                    },
+                    "currencyCode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Currency of the money."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A monetary value with currency."
+                },
+                "product": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The ID of the product."
+                    },
+                    "title": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product’s title."
+                    },
+                    "untranslatedTitle": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product’s untranslated title."
+                    },
+                    "vendor": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product’s vendor name."
+                    },
+                    "type": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The product type specified by the merchant."
+                    },
+                    "url": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The relative URL of the product."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "The product object that the product variant belongs to."
+                },
+                "sku": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The SKU (stock keeping unit) associated with the variant."
+                },
+                "title": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product variant’s title."
+                },
+                "untranslatedTitle": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product variant’s untranslated title."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Product variant of the line item."
+            }
+          },
+          "additionalProperties": false,
+          "description": "A list of line item objects, each one containing information about an item in the checkout."
+        },
+        "description": "A list of line item objects, each one containing information about an item in the checkout."
+      },
+      "order": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "The ID of the order."
+          }
+        },
+        "additionalProperties": false
+      },
+      "phone": {
+        "type": "string",
+        "nullable": true,
+        "description": "A unique phone number for the customer."
+      },
+      "hashedPhone": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of phone in SHA256 (lower case)."
+      },
+      "shippingAddress": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "address1": {
+            "type": "string",
+            "nullable": true,
+            "description": "The first line of the address. This is usually the street address or a P.O. Box number."
+          },
+          "address2": {
+            "type": "string",
+            "nullable": true,
+            "description": "The second line of the address. This is usually an apartment, suite, or unit number."
+          },
+          "city": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of the city, district, village, or town."
+          },
+          "country": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of the country."
+          },
+          "countryCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "The two-letter code that represents the country, for example, US. The country codes generally follows ISO 3166-1 alpha-2 guidelines."
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true,
+            "description": "The customer’s first name."
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true,
+            "description": "The customer’s last name."
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "description": "The phone number for this mailing address as entered by the customer."
+          },
+          "province": {
+            "type": "string",
+            "nullable": true,
+            "description": "The region of the address, such as the province, state, or district."
+          },
+          "provinceCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "The two-letter code for the region. For example, ON."
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true,
+            "description": "The ZIP or postal code of the address."
+          },
+          "hashedPhone": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of phone in SHA256 (lower case)."
+          },
+          "hashedFirstName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of first name in SHA256 (lower case)."
+          },
+          "hashedLastName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of last name in SHA256 (lower case)."
+          },
+          "hashedZip": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hashed value of zip in SHA256 (lower case)."
+          }
+        },
+        "additionalProperties": false,
+        "description": "An address."
+      },
+      "shippingLine": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "price": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency."
+          }
+        },
+        "additionalProperties": false
+      },
+      "subtotalPrice": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      },
+      "token": {
+        "type": "string",
+        "nullable": true,
+        "description": "A unique identifier for a particular checkout."
+      },
+      "totalPrice": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      },
+      "totalTax": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      }
+    },
+    "additionalProperties": false
+  },
+  "CheckoutLineItem": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "discountAllocations": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "amount": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Decimal money amount."
+                },
+                "currencyCode": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Currency of the money."
+                }
+              },
+              "additionalProperties": false,
+              "description": "A monetary value with currency."
+            },
+            "discountApplication": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "allocationMethod": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The method by which the discount's value is applied to its entitled items."
+                },
+                "targetSelection": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "How the discount amount is distributed on the discounted lines."
+                },
+                "targetType": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The type of line (i.e. line item or shipping line) on an order that the discount is applicable towards."
+                },
+                "title": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The customer-facing name of the discount. If the type of discount is a DISCOUNT_CODE, this title attribute represents the code of the discount."
+                },
+                "type": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The type of the discount."
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "amount": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "Decimal money amount."
+                        },
+                        "currencyCode": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Currency of the money."
+                        }
+                      },
+                      "additionalProperties": false,
+                      "description": "A monetary value with currency."
+                    },
+                    {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "percentage": {
+                          "type": "number",
+                          "nullable": true,
+                          "description": "The percentage value of the object."
+                        }
+                      },
+                      "additionalProperties": false,
+                      "description": "The value of the percentage pricing object."
+                    }
+                  ],
+                  "description": "The value of the discount."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Discount applications capture the intentions of a discount source at the time of application."
+            }
+          },
+          "additionalProperties": false,
+          "description": "An amount discounting the line that has been allocated by a discount."
+        },
+        "description": "The discounts that have been applied to the checkout line item by a discount application."
+      },
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "A globally unique identifier."
+      },
+      "quantity": {
+        "type": "number",
+        "nullable": true,
+        "description": "The quantity of the line item."
+      },
+      "sellingPlanAllocation": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "sellingPlan": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "nullable": true,
+                "description": "A globally unique identifier."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "The name of the selling plan. For example, '6 weeks of prepaid granola, delivered weekly'."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A representation of how products and variants can be sold and purchased. For example, an individual selling plan could be '6 weeks of prepaid granola, delivered weekly'."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The selling plan associated with the line item and the effect that each selling plan has on variants when they're purchased."
+      },
+      "title": {
+        "type": "string",
+        "nullable": true,
+        "description": "The title of the line item. Defaults to the product's title."
+      },
+      "variant": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "A globally unique identifier."
+          },
+          "image": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "src": {
+                "type": "string",
+                "nullable": true,
+                "description": "The location of the image as a URL."
+              }
+            },
+            "additionalProperties": false,
+            "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+          },
+          "inventoryItem": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "nullable": true,
+                "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+              },
+              "cost": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "nullable": true,
+                    "description": "Decimal money amount."
+                  },
+                  "currencyCode": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Currency of the money."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+              }
+            },
+            "additionalProperties": false,
+            "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+          },
+          "price": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency."
+          },
+          "product": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "nullable": true,
+                "description": "The ID of the product."
+              },
+              "title": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product’s title."
+              },
+              "untranslatedTitle": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product’s untranslated title."
+              },
+              "vendor": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product’s vendor name."
+              },
+              "type": {
+                "type": "string",
+                "nullable": true,
+                "description": "The product type specified by the merchant."
+              },
+              "url": {
+                "type": "string",
+                "nullable": true,
+                "description": "The relative URL of the product."
+              }
+            },
+            "additionalProperties": false,
+            "description": "The product object that the product variant belongs to."
+          },
+          "sku": {
+            "type": "string",
+            "nullable": true,
+            "description": "The SKU (stock keeping unit) associated with the variant."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product variant’s title."
+          },
+          "untranslatedTitle": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product variant’s untranslated title."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Product variant of the line item."
+      }
+    },
+    "additionalProperties": false,
+    "description": "A list of line item objects, each one containing information about an item in the checkout."
+  },
+  "Collection": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "A globally unique identifier."
+      },
+      "title": {
+        "type": "string",
+        "nullable": true,
+        "description": "The collection’s name."
+      },
+      "productVariants": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "description": "A globally unique identifier."
+            },
+            "image": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "src": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The location of the image as a URL."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+            },
+            "inventoryItem": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+                },
+                "cost": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "amount": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Decimal money amount."
+                    },
+                    "currencyCode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Currency of the money."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+                }
+              },
+              "additionalProperties": false,
+              "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+            },
+            "price": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Decimal money amount."
+                },
+                "currencyCode": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Currency of the money."
+                }
+              },
+              "additionalProperties": false,
+              "description": "A monetary value with currency."
+            },
+            "product": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The ID of the product."
+                },
+                "title": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product’s title."
+                },
+                "untranslatedTitle": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product’s untranslated title."
+                },
+                "vendor": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product’s vendor name."
+                },
+                "type": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product type specified by the merchant."
+                },
+                "url": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The relative URL of the product."
+                }
+              },
+              "additionalProperties": false,
+              "description": "The product object that the product variant belongs to."
+            },
+            "sku": {
+              "type": "string",
+              "nullable": true,
+              "description": "The SKU (stock keeping unit) associated with the variant."
+            },
+            "title": {
+              "type": "string",
+              "nullable": true,
+              "description": "The product variant’s title."
+            },
+            "untranslatedTitle": {
+              "type": "string",
+              "nullable": true,
+              "description": "The product variant’s untranslated title."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Product variant of the line item."
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "CustomValue": {
+    "type": "object",
+    "nullable": true,
+    "required": [
+      "name",
+      "value"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "nullable": false
+      },
+      "value": {
+        "type": "string",
+        "nullable": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "Customer": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "A unique identifier for the customer."
+      },
+      "email": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer's email address."
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer's first name."
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer's last name."
+      },
+      "ordersCount": {
+        "type": "number",
+        "nullable": true,
+        "description": "The number of orders associated with this customer."
+      },
+      "phone": {
+        "type": "string",
+        "nullable": true,
+        "description": "The unique phone number (E.164 format) for this customer."
+      },
+      "dob": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer's date of birth."
+      },
+      "hashedEmail": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of email in SHA256 (lower case)."
+      },
+      "hashedPhone": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of phone in SHA256 (lower case)."
+      },
+      "hashedFirstName": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of first name in SHA256 (lower case)."
+      },
+      "hashedLastName": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of last name in SHA256 (lower case)."
+      },
+      "hashedDob": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of date of birth in SHA256 (lower case)."
+      }
+    },
+    "additionalProperties": false
+  },
+  "DiscountAllocation": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "amount": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      },
+      "discountApplication": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "allocationMethod": {
+            "type": "string",
+            "nullable": true,
+            "description": "The method by which the discount's value is applied to its entitled items."
+          },
+          "targetSelection": {
+            "type": "string",
+            "nullable": true,
+            "description": "How the discount amount is distributed on the discounted lines."
+          },
+          "targetType": {
+            "type": "string",
+            "nullable": true,
+            "description": "The type of line (i.e. line item or shipping line) on an order that the discount is applicable towards."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "The customer-facing name of the discount. If the type of discount is a DISCOUNT_CODE, this title attribute represents the code of the discount."
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "The type of the discount."
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "nullable": true,
+                    "description": "Decimal money amount."
+                  },
+                  "currencyCode": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Currency of the money."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "A monetary value with currency."
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "percentage": {
+                    "type": "number",
+                    "nullable": true,
+                    "description": "The percentage value of the object."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "The value of the percentage pricing object."
+              }
+            ],
+            "description": "The value of the discount."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Discount applications capture the intentions of a discount source at the time of application."
+      }
+    },
+    "additionalProperties": false,
+    "description": "An amount discounting the line that has been allocated by a discount."
+  },
+  "DiscountApplication": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "allocationMethod": {
+        "type": "string",
+        "nullable": true,
+        "description": "The method by which the discount's value is applied to its entitled items."
+      },
+      "targetSelection": {
+        "type": "string",
+        "nullable": true,
+        "description": "How the discount amount is distributed on the discounted lines."
+      },
+      "targetType": {
+        "type": "string",
+        "nullable": true,
+        "description": "The type of line (i.e. line item or shipping line) on an order that the discount is applicable towards."
+      },
+      "title": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer-facing name of the discount. If the type of discount is a DISCOUNT_CODE, this title attribute represents the code of the discount."
+      },
+      "type": {
+        "type": "string",
+        "nullable": true,
+        "description": "The type of the discount."
+      },
+      "value": {
+        "anyOf": [
+          {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency."
+          },
+          {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "percentage": {
+                "type": "number",
+                "nullable": true,
+                "description": "The percentage value of the object."
+              }
+            },
+            "additionalProperties": false,
+            "description": "The value of the percentage pricing object."
+          }
+        ],
+        "description": "The value of the discount."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Discount applications capture the intentions of a discount source at the time of application."
+  },
+  "Image": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "src": {
+        "type": "string",
+        "nullable": true,
+        "description": "The location of the image as a URL."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+  },
+  "InventoryItem": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+      },
+      "cost": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+      }
+    },
+    "additionalProperties": false,
+    "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+  },
+  "MailingAddress": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "address1": {
+        "type": "string",
+        "nullable": true,
+        "description": "The first line of the address. This is usually the street address or a P.O. Box number."
+      },
+      "address2": {
+        "type": "string",
+        "nullable": true,
+        "description": "The second line of the address. This is usually an apartment, suite, or unit number."
+      },
+      "city": {
+        "type": "string",
+        "nullable": true,
+        "description": "The name of the city, district, village, or town."
+      },
+      "country": {
+        "type": "string",
+        "nullable": true,
+        "description": "The name of the country."
+      },
+      "countryCode": {
+        "type": "string",
+        "nullable": true,
+        "description": "The two-letter code that represents the country, for example, US. The country codes generally follows ISO 3166-1 alpha-2 guidelines."
+      },
+      "firstName": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer’s first name."
+      },
+      "lastName": {
+        "type": "string",
+        "nullable": true,
+        "description": "The customer’s last name."
+      },
+      "phone": {
+        "type": "string",
+        "nullable": true,
+        "description": "The phone number for this mailing address as entered by the customer."
+      },
+      "province": {
+        "type": "string",
+        "nullable": true,
+        "description": "The region of the address, such as the province, state, or district."
+      },
+      "provinceCode": {
+        "type": "string",
+        "nullable": true,
+        "description": "The two-letter code for the region. For example, ON."
+      },
+      "zip": {
+        "type": "string",
+        "nullable": true,
+        "description": "The ZIP or postal code of the address."
+      },
+      "hashedPhone": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of phone in SHA256 (lower case)."
+      },
+      "hashedFirstName": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of first name in SHA256 (lower case)."
+      },
+      "hashedLastName": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of last name in SHA256 (lower case)."
+      },
+      "hashedZip": {
+        "type": "string",
+        "nullable": true,
+        "description": "Hashed value of zip in SHA256 (lower case)."
+      }
+    },
+    "additionalProperties": false,
+    "description": "An address."
+  },
+  "Money": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "amount": {
+        "type": "number",
+        "nullable": true,
+        "description": "Decimal money amount."
+      },
+      "currencyCode": {
+        "type": "string",
+        "nullable": true,
+        "description": "Currency of the money."
+      }
+    },
+    "additionalProperties": false,
+    "description": "A monetary value with currency."
+  },
+  "Order": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "The ID of the order."
+      }
+    },
+    "additionalProperties": false
+  },
+  "PricingPercentageValue": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "percentage": {
+        "type": "number",
+        "nullable": true,
+        "description": "The percentage value of the object."
+      }
+    },
+    "additionalProperties": false,
+    "description": "The value of the percentage pricing object."
+  },
+  "Product": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "The ID of the product."
+      },
+      "title": {
+        "type": "string",
+        "nullable": true,
+        "description": "The product’s title."
+      },
+      "untranslatedTitle": {
+        "type": "string",
+        "nullable": true,
+        "description": "The product’s untranslated title."
+      },
+      "vendor": {
+        "type": "string",
+        "nullable": true,
+        "description": "The product’s vendor name."
+      },
+      "type": {
+        "type": "string",
+        "nullable": true,
+        "description": "The product type specified by the merchant."
+      },
+      "url": {
+        "type": "string",
+        "nullable": true,
+        "description": "The relative URL of the product."
+      }
+    },
+    "additionalProperties": false,
+    "description": "The product object that the product variant belongs to."
+  },
+  "ProductVariant": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "A globally unique identifier."
+      },
+      "image": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "src": {
+            "type": "string",
+            "nullable": true,
+            "description": "The location of the image as a URL."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+      },
+      "inventoryItem": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+          },
+          "cost": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "amount": {
+                "type": "number",
+                "nullable": true,
+                "description": "Decimal money amount."
+              },
+              "currencyCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Currency of the money."
+              }
+            },
+            "additionalProperties": false,
+            "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+      },
+      "price": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      },
+      "product": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "The ID of the product."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product’s title."
+          },
+          "untranslatedTitle": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product’s untranslated title."
+          },
+          "vendor": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product’s vendor name."
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "The product type specified by the merchant."
+          },
+          "url": {
+            "type": "string",
+            "nullable": true,
+            "description": "The relative URL of the product."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The product object that the product variant belongs to."
+      },
+      "sku": {
+        "type": "string",
+        "nullable": true,
+        "description": "The SKU (stock keeping unit) associated with the variant."
+      },
+      "title": {
+        "type": "string",
+        "nullable": true,
+        "description": "The product variant’s title."
+      },
+      "untranslatedTitle": {
+        "type": "string",
+        "nullable": true,
+        "description": "The product variant’s untranslated title."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Product variant of the line item."
+  },
+  "SearchResult": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "query": {
+        "type": "string",
+        "nullable": true,
+        "description": "The search query that was executed."
+      },
+      "productVariants": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "description": "A globally unique identifier."
+            },
+            "image": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "src": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The location of the image as a URL."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Image associated with the product variant. This field falls back to the product image if no image is available."
+            },
+            "inventoryItem": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Inventory item identifier. Optional; for Shopify shops this is the inventory_items.id. For non-Shopify, may equal variant.id."
+                },
+                "cost": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "amount": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Decimal money amount."
+                    },
+                    "currencyCode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Currency of the money."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "A monetary value with currency representing the unit cost to manufacture, distribute, and sell the item."
+                }
+              },
+              "additionalProperties": false,
+              "description": "The inventory item associated with the product variant, including its per-item cost (COGS)."
+            },
+            "price": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Decimal money amount."
+                },
+                "currencyCode": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Currency of the money."
+                }
+              },
+              "additionalProperties": false,
+              "description": "A monetary value with currency."
+            },
+            "product": {
+              "type": "object",
+              "nullable": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The ID of the product."
+                },
+                "title": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product’s title."
+                },
+                "untranslatedTitle": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product’s untranslated title."
+                },
+                "vendor": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product’s vendor name."
+                },
+                "type": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The product type specified by the merchant."
+                },
+                "url": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "The relative URL of the product."
+                }
+              },
+              "additionalProperties": false,
+              "description": "The product object that the product variant belongs to."
+            },
+            "sku": {
+              "type": "string",
+              "nullable": true,
+              "description": "The SKU (stock keeping unit) associated with the variant."
+            },
+            "title": {
+              "type": "string",
+              "nullable": true,
+              "description": "The product variant’s title."
+            },
+            "untranslatedTitle": {
+              "type": "string",
+              "nullable": true,
+              "description": "The product variant’s untranslated title."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Product variant of the line item."
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "SellingPlan": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "A globally unique identifier."
+      },
+      "name": {
+        "type": "string",
+        "nullable": true,
+        "description": "The name of the selling plan. For example, '6 weeks of prepaid granola, delivered weekly'."
+      }
+    },
+    "additionalProperties": false,
+    "description": "A representation of how products and variants can be sold and purchased. For example, an individual selling plan could be '6 weeks of prepaid granola, delivered weekly'."
+  },
+  "SellingPlanAllocation": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "sellingPlan": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "A globally unique identifier."
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of the selling plan. For example, '6 weeks of prepaid granola, delivered weekly'."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A representation of how products and variants can be sold and purchased. For example, an individual selling plan could be '6 weeks of prepaid granola, delivered weekly'."
+      }
+    },
+    "additionalProperties": false,
+    "description": "The selling plan associated with the line item and the effect that each selling plan has on variants when they're purchased."
+  },
+  "ShippingRate": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "price": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "amount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Decimal money amount."
+          },
+          "currencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency of the money."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A monetary value with currency."
+      }
+    },
+    "additionalProperties": false
+  },
+  "FormElement": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "The id attribute of an element."
+      },
+      "action": {
+        "type": "string",
+        "nullable": true,
+        "description": "The action attribute of a form element."
+      },
+      "elements": {
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "nullable": true,
+          "properties": {
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "description": "The id attribute of an element."
+            },
+            "name": {
+              "type": "string",
+              "nullable": true,
+              "description": "The name attribute of an element."
+            },
+            "tagName": {
+              "type": "string",
+              "nullable": true,
+              "description": "A string representation of the tag of an element."
+            },
+            "type": {
+              "type": "string",
+              "nullable": true,
+              "description": "The type attribute of an element. Often relevant for an input or button element."
+            },
+            "value": {
+              "type": "string",
+              "nullable": true,
+              "description": "The value attribute of an element. Often relevant for an input element."
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "InputElement": {
+    "type": "object",
+    "nullable": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "nullable": true,
+        "description": "The id attribute of an element."
+      },
+      "name": {
+        "type": "string",
+        "nullable": true,
+        "description": "The name attribute of an element."
+      },
+      "tagName": {
+        "type": "string",
+        "nullable": true,
+        "description": "A string representation of the tag of an element."
+      },
+      "type": {
+        "type": "string",
+        "nullable": true,
+        "description": "The type attribute of an element. Often relevant for an input or button element."
+      },
+      "value": {
+        "type": "string",
+        "nullable": true,
+        "description": "The value attribute of an element. Often relevant for an input element."
+      }
+    },
+    "additionalProperties": false
+  }
+}

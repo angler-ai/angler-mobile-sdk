@@ -1,0 +1,116 @@
+{
+  "cases": [
+    {
+      "name": "status_200_batch_5",
+      "input": {
+        "status": 200,
+        "batchSize": 5
+      },
+      "expected": "remove"
+    },
+    {
+      "name": "status_201_batch_1",
+      "input": {
+        "status": 201,
+        "batchSize": 1
+      },
+      "expected": "remove"
+    },
+    {
+      "name": "status_400_batch_5",
+      "input": {
+        "status": 400,
+        "batchSize": 5
+      },
+      "expected": "isolate"
+    },
+    {
+      "name": "status_400_batch_1",
+      "input": {
+        "status": 400,
+        "batchSize": 1
+      },
+      "expected": "drop"
+    },
+    {
+      "name": "status_413_batch_4",
+      "input": {
+        "status": 413,
+        "batchSize": 4
+      },
+      "expected": "split"
+    },
+    {
+      "name": "status_413_batch_1",
+      "input": {
+        "status": 413,
+        "batchSize": 1
+      },
+      "expected": "drop"
+    },
+    {
+      "name": "status_401_batch_3",
+      "input": {
+        "status": 401,
+        "batchSize": 3
+      },
+      "expected": "pause"
+    },
+    {
+      "name": "status_403_batch_1",
+      "input": {
+        "status": 403,
+        "batchSize": 1
+      },
+      "expected": "pause"
+    },
+    {
+      "name": "status_429_batch_10",
+      "input": {
+        "status": 429,
+        "batchSize": 10
+      },
+      "expected": "retry"
+    },
+    {
+      "name": "status_500_batch_1",
+      "input": {
+        "status": 500,
+        "batchSize": 1
+      },
+      "expected": "retry"
+    },
+    {
+      "name": "status_503_batch_2",
+      "input": {
+        "status": 503,
+        "batchSize": 2
+      },
+      "expected": "retry"
+    },
+    {
+      "name": "network_error_batch_3",
+      "input": {
+        "status": null,
+        "batchSize": 3
+      },
+      "expected": "retry"
+    },
+    {
+      "name": "status_404_batch_2",
+      "input": {
+        "status": 404,
+        "batchSize": 2
+      },
+      "expected": "drop"
+    },
+    {
+      "name": "status_422_batch_1",
+      "input": {
+        "status": 422,
+        "batchSize": 1
+      },
+      "expected": "drop"
+    }
+  ]
+}

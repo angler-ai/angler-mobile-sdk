@@ -1,0 +1,6 @@
+// Dev workspace credentials. Put real values in Local.xcconfig (gitignored), e.g.
+//   ANGLER_WORKSPACE_ID = <workspace id>
+//   ANGLER_TOKEN = <dev workspace JWT>
+ANGLER_WORKSPACE_ID = example-workspace
+ANGLER_TOKEN = replace-me
+#include? "Local.xcconfig"
