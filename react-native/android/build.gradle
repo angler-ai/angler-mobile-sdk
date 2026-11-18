@@ -1,4 +1,4 @@
-// Android TurboModule for @angler-ai/react-native-analytics. Depends on the Kotlin core from
+// Android TurboModule for @anglerai/react-native-analytics. Depends on the Kotlin core from
 // Maven at the same version as this package.
 import groovy.json.JsonSlurper
 

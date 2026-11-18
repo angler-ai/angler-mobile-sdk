@@ -105,8 +105,8 @@ jobs:
       - name: Already on npm?
         id: check
         run: |
-          if npm view "@angler-ai/react-native-analytics@$VERSION" version > /dev/null 2>&1; then
-            echo "@angler-ai/react-native-analytics@$VERSION is already published; skipping."
+          if npm view "@anglerai/react-native-analytics@$VERSION" version > /dev/null 2>&1; then
+            echo "@anglerai/react-native-analytics@$VERSION is already published; skipping."
             echo "published=true" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.check.outputs.published != 'true'

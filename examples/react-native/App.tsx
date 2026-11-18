@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Button, SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import {Angler, AnglerEvent} from '@angler-ai/react-native-analytics';
+import {Angler, AnglerEvent} from '@anglerai/react-native-analytics';
 
 // Dev workspace credentials. Use your own; never commit a real token.
 const WORKSPACE_ID = 'example-workspace';

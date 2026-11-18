@@ -1,5 +1,5 @@
 {
-  "name": "@angler-ai/react-native-analytics",
+  "name": "@anglerai/react-native-analytics",
   "version": "0.1.0",
   "description": "Angler app analytics and attribution for React Native (iOS and Android).",
   "license": "MIT",

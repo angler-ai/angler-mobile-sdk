@@ -1583,7 +1583,7 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - "AnglerAnalyticsRN (from `../node_modules/@angler-ai/react-native-analytics`)"
+  - "AnglerAnalyticsRN (from `../node_modules/@anglerai/react-native-analytics`)"
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
@@ -1657,7 +1657,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AnglerAnalyticsRN:
-    :path: "../node_modules/@angler-ai/react-native-analytics"
+    :path: "../node_modules/@anglerai/react-native-analytics"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:

@@ -15,7 +15,7 @@ const FILES = {
   'android/angler-analytics/src/main/kotlin/ai/getangler/analytics/SdkVersion.kt': (v) =>
     `package ai.getangler.analytics\n\ninternal object SdkVersion {\n    const val CURRENT: String = "${v}"\n}\n`,
   'react-native/package.json': (v) =>
-    `{\n  "name": "@angler-ai/react-native-analytics",\n  "version": "${v}",\n  "devDependencies": {\n    "jest": "^29.7.0"\n  }\n}\n`,
+    `{\n  "name": "@anglerai/react-native-analytics",\n  "version": "${v}",\n  "devDependencies": {\n    "jest": "^29.7.0"\n  }\n}\n`,
   'flutter/pubspec.yaml': (v) => `name: angler_analytics\ndescription: x\nversion: ${v}\n\nenvironment:\n  sdk: ">=3.5.0 <4.0.0"\n`,
 };
 

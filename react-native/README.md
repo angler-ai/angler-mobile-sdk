@@ -1,4 +1,4 @@
-# @angler-ai/react-native-analytics
+# @anglerai/react-native-analytics
 
 Angler app events and ad-attribution signals for React Native (iOS and Android), over the
 native Angler SDKs. React Native 0.76+ with the New Architecture.
@@ -6,7 +6,7 @@ native Angler SDKs. React Native 0.76+ with the New Architecture.
 ## Install
 
 ```sh
-npm install @angler-ai/react-native-analytics
+npm install @anglerai/react-native-analytics
 cd ios && pod install
 ```
 
@@ -16,7 +16,7 @@ the Maven artifact `ai.getangler:analytics` at the same version.
 ## Configure and track
 
 ```ts
-import { Angler, AnglerEvent } from '@angler-ai/react-native-analytics';
+import { Angler, AnglerEvent } from '@anglerai/react-native-analytics';
 
 // Once at startup, e.g. in index.js or your root component's module scope.
 // Calling it again (Fast Refresh) is ignored.

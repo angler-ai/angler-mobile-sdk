@@ -1,6 +1,6 @@
 # React Native example
 
-A React Native 0.76 app (New Architecture) that uses `@angler-ai/react-native-analytics` from
+A React Native 0.76 app (New Architecture) that uses `@anglerai/react-native-analytics` from
 this repo (`file:../../react-native`). It configures against `dev-data.getangler.ai`; put a dev
 workspace ID and token in `App.tsx` before sending real events (never commit a real token).
 

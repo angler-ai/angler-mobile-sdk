@@ -14,7 +14,7 @@
   "dependencies": {
     "react": "18.3.1",
     "react-native": "0.76.9",
-    "@angler-ai/react-native-analytics": "file:../../react-native"
+    "@anglerai/react-native-analytics": "file:../../react-native"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
