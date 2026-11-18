@@ -1,5 +1,5 @@
 {
-  "$comment": "exported from data-api f64a4b6",
+  "$comment": "exported from data-api d36fffc",
   "type": "object",
   "required": [
     "data"
@@ -13,7 +13,9 @@
         "SERVER",
         "SEGMENT",
         "APPSFLYER",
-        "VAGARO"
+        "VAGARO",
+        "IOS",
+        "ANDROID"
       ]
     },
     "load_id": {
