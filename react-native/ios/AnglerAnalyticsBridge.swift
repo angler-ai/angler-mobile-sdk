@@ -41,6 +41,7 @@ public final class AnglerAnalyticsBridge: NSObject {
         var config = AnglerConfiguration(workspaceId: workspaceId, token: token)
         if let v = o["domain"] as? String, !v.isEmpty { config.domain = v }
         if let v = o["clientId"] as? String, !v.isEmpty { config.clientId = v }
+        if let v = o["appStoreId"] as? String, !v.isEmpty { config.appStoreId = v }
         if let v = o["trackLifecycleEvents"] as? Bool { config.trackLifecycleEvents = v }
         if let v = o["flushAt"] as? NSNumber { config.flushAt = v.intValue }
         if let v = o["flushIntervalSeconds"] as? NSNumber { config.flushInterval = v.doubleValue }

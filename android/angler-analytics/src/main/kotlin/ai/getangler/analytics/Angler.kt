@@ -2,6 +2,7 @@ package ai.getangler.analytics
 
 import ai.getangler.analytics.device.DeviceContext
 import ai.getangler.analytics.device.PlayAdIdProvider
+import ai.getangler.analytics.device.ReflectiveFirebaseIdSource
 import ai.getangler.analytics.device.PlayInstallReferrerSource
 import ai.getangler.analytics.network.ExecutorScheduler
 import ai.getangler.analytics.network.HttpUrlConnectionTransport
@@ -164,7 +165,7 @@ object Angler {
             },
             adIds = PlayAdIdProvider(context),
             referrer = PlayInstallReferrerSource(context),
-            device = { c, ad, app -> DeviceContext.collect(context, c.wrapper, ad, app) },
+            device = { c, ad, app -> DeviceContext.collect(context, c.wrapper, ad, app, c.appId) },
             uuid = { UUID.randomUUID().toString().lowercase() },
             scheduler = ExecutorScheduler(executor),
             executor = executor,
@@ -177,6 +178,7 @@ object Angler {
                     }
                 }
             },
+            firebase = ReflectiveFirebaseIdSource(context),
         )
     }
 }

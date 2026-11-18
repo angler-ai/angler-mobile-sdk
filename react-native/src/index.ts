@@ -12,6 +12,11 @@ export type AnglerConfig = {
   domain?: string;
   /** Overrides `client_id`. Defaults to the install ID. */
   clientId?: string;
+  /**
+   * iOS App Store ID (`id1234567890`), sent as the `app_id` device property; TikTok's app events
+   * need it. Android always sends the package name.
+   */
+  appStoreId?: string;
   trackLifecycleEvents?: boolean;
   flushAt?: number;
   flushIntervalSeconds?: number;

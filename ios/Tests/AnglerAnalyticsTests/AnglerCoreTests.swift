@@ -25,7 +25,8 @@ final class AnglerCoreTests: XCTestCase {
     override func tearDownWithError() throws { try? FileManager.default.removeItem(at: dir) }
 
     private func makeCore(transport: FakeTransport? = nil, center: NotificationCenter? = nil,
-                          isActive: (() -> Bool)? = nil, protectedData: ProtectedDataGate? = nil) -> AnglerCore {
+                          isActive: (() -> Bool)? = nil, protectedData: ProtectedDataGate? = nil,
+                          firebase: FirebaseIdProviding = NoFirebaseIdProvider()) -> AnglerCore {
         let lock = NSLock()
         return AnglerCore(
             store: store,
@@ -44,7 +45,8 @@ final class AnglerCoreTests: XCTestCase {
             lifecycle: LifecycleNotifications(center: center ?? self.center, background: .init("bg"),
                                               foreground: .init("fg"), isActive: isActive),
             backgroundTasks: nil,
-            protectedData: protectedData
+            protectedData: protectedData,
+            firebase: firebase
         )
     }
 
@@ -267,6 +269,36 @@ final class AnglerCoreTests: XCTestCase {
         XCTAssertEqual(events[0]["data"], .object(expected))
         XCTAssertEqual(events[1]["event_name"], .string("custom_event"))
         XCTAssertEqual(events[1]["custom_event_name"], .string("level_up"))
+    }
+
+    private struct FakeFirebase: FirebaseIdProviding {
+        var id: String?
+        func appInstanceId() -> String? { id }
+    }
+
+    func testFirebaseAppInstanceIdIsSentWhenAvailable() throws {
+        transport.defaultStatus = nil
+        let core = makeCore(firebase: FakeFirebase(id: "fb-123"))
+        core.configure(config())
+        core.track("product_viewed")
+        XCTAssertEqual(identifiers(try XCTUnwrap(core.queuedBodies().first))["firebase_app_instance_id"], "fb-123")
+    }
+
+    func testNoFirebaseMeansNoFirebaseIdentifier() throws {
+        transport.defaultStatus = nil
+        let core = makeCore()
+        core.configure(config())
+        core.track("product_viewed")
+        XCTAssertNil(identifiers(try XCTUnwrap(core.queuedBodies().first))["firebase_app_instance_id"])
+    }
+
+    func testHostSetFirebaseIdWins() throws {
+        transport.defaultStatus = nil
+        let core = makeCore(firebase: FakeFirebase(id: "auto"))
+        core.configure(config())
+        core.setIdentifier("firebase_app_instance_id", value: "manual")
+        core.track("product_viewed")
+        XCTAssertEqual(identifiers(try XCTUnwrap(core.queuedBodies().first))["firebase_app_instance_id"], "manual")
     }
 
     func testClientIdOverride() throws {

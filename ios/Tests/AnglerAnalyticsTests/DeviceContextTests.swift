@@ -55,4 +55,11 @@ final class DeviceContextTests: XCTestCase {
         XCTAssertNotNil(p["device_model_name"])
     }
     #endif
+
+    func testAppStoreIdIsNormalizedToAppsFlyerForm() {
+        XCTAssertEqual(DeviceContext.normalizeAppStoreId("1234567890"), "id1234567890")
+        XCTAssertEqual(DeviceContext.normalizeAppStoreId(" id1234567890 "), "id1234567890")
+        XCTAssertNil(DeviceContext.normalizeAppStoreId(""))
+        XCTAssertNil(DeviceContext.normalizeAppStoreId(nil))
+    }
 }

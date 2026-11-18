@@ -9,6 +9,9 @@ public struct AnglerConfiguration {
     public var domain: String
     /// Overrides `client_id`. Defaults to the install ID.
     public var clientId: String?
+    /// Your App Store ID (`id1234567890` or `1234567890`), sent as the `app_id` device property
+    /// (the value AppsFlyer reports). TikTok's app events need it.
+    public var appStoreId: String?
     public var trackLifecycleEvents: Bool
     /// Number of queued events that triggers a flush.
     public var flushAt: Int
@@ -22,7 +25,7 @@ public struct AnglerConfiguration {
 
     public init(workspaceId: String, token: String, domain: String = "data.getangler.ai", clientId: String? = nil,
                 trackLifecycleEvents: Bool = true, flushAt: Int = 20, flushInterval: TimeInterval = 30,
-                maxQueueSize: Int = 1000, debugLogging: Bool = false) {
+                maxQueueSize: Int = 1000, debugLogging: Bool = false, appStoreId: String? = nil) {
         self.workspaceId = workspaceId
         self.token = token
         self.domain = domain
@@ -32,6 +35,7 @@ public struct AnglerConfiguration {
         self.flushInterval = flushInterval
         self.maxQueueSize = maxQueueSize
         self.debugLogging = debugLogging
+        self.appStoreId = appStoreId
     }
 }
 
@@ -57,7 +61,7 @@ public enum Angler {
             },
             adIds: SystemAdIdProvider(),
             device: { config, adTracking, appTracking in
-                DeviceContext.collect(wrapper: config.wrapper, adTrackingEnabled: adTracking,
+                DeviceContext.collect(wrapper: config.wrapper, appStoreId: config.appStoreId, adTrackingEnabled: adTracking,
                                       applicationTrackingEnabled: appTracking)
             },
             uuid: { UUID().uuidString.lowercased() },
@@ -65,6 +69,7 @@ public enum Angler {
             lifecycle: .system,
             backgroundTasks: backgroundTasks,
             protectedData: .system,
+            firebase: SystemFirebaseIdProvider(),
             queue: queue
         )
     }()

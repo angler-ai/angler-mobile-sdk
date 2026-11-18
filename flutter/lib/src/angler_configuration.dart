@@ -5,6 +5,7 @@ class AnglerConfiguration {
     required this.token,
     this.domain,
     this.clientId,
+    this.appStoreId,
     this.trackLifecycleEvents,
     this.flushAt,
     this.flushIntervalSeconds,
@@ -22,6 +23,10 @@ class AnglerConfiguration {
 
   /// Overrides `client_id`. Defaults to the install ID.
   final String? clientId;
+
+  /// iOS App Store ID (`id1234567890`), sent as the `app_id` device property; TikTok's app
+  /// events need it. Android always sends the package name.
+  final String? appStoreId;
   final bool? trackLifecycleEvents;
 
   /// Number of queued events that triggers a flush (default 20).
@@ -41,6 +46,7 @@ class AnglerConfiguration {
       'token': token,
       'domain': domain,
       'clientId': clientId,
+      'appStoreId': appStoreId,
       'trackLifecycleEvents': trackLifecycleEvents,
       'flushAt': flushAt,
       'flushIntervalSeconds': flushIntervalSeconds,

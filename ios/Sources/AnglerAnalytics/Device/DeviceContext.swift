@@ -14,7 +14,7 @@ enum DeviceContext {
     private static let lock = NSLock()
     private static var cachedScreen: Screen?
 
-    static func collect(wrapper: String, adTrackingEnabled: Bool, applicationTrackingEnabled: Bool) -> DeviceSnapshot {
+    static func collect(wrapper: String, appStoreId: String? = nil, adTrackingEnabled: Bool, applicationTrackingEnabled: Bool) -> DeviceSnapshot {
         var props: [DeviceProperty] = []
         func add(_ name: String, _ value: String?) {
             if let value, !value.isEmpty { props.append(DeviceProperty(name: name, value: value)) }
@@ -25,6 +25,7 @@ enum DeviceContext {
 
         #if os(iOS)
         let info = Bundle.main.infoDictionary
+        add("app_id", normalizeAppStoreId(appStoreId))
         add("app_package", Bundle.main.bundleIdentifier)
         add("app_version_short", info?["CFBundleShortVersionString"] as? String)
         add("app_version_long", info?["CFBundleVersion"] as? String)
@@ -52,6 +53,14 @@ enum DeviceContext {
 
         let ua = userAgent(sdkVersion: SDKVersion.current, os: "iOS", osVersion: osVersion, model: model, wrapper: wrapper)
         return DeviceSnapshot(properties: props, userAgent: ua)
+    }
+
+    /// `id` plus the digits, the form AppsFlyer reports: `1234567890` and `id1234567890` both
+    /// become `id1234567890`. Anything else is sent as given (trimmed).
+    static func normalizeAppStoreId(_ appId: String?) -> String? {
+        guard let id = appId?.trimmingCharacters(in: .whitespacesAndNewlines), !id.isEmpty else { return nil }
+        if id.allSatisfy({ $0.isASCII && $0.isNumber }) { return "id" + id }
+        return id
     }
 
     static func userAgent(sdkVersion: String, os: String, osVersion: String, model: String, wrapper: String) -> String {

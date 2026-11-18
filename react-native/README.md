@@ -40,7 +40,7 @@ accepts (`cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `search
 `customer`, `form`, `contacts`, `customData`); the nested types (`AnglerCartLine`,
 `AnglerMoney`, …) are exported too.
 
-Options: `domain` (`dev-data.getangler.ai` for testing), `clientId`, `trackLifecycleEvents`,
+Options: `domain` (`dev-data.getangler.ai` for testing), `clientId`, `appStoreId`, `trackLifecycleEvents`,
 `flushAt`, `flushIntervalSeconds`, `maxQueueSize`, `debugLogging`, `autoHandleDeepLinks`.
 
 No method throws: problems are logged with `console.warn` in development. `data` that can't be
@@ -77,6 +77,11 @@ Angler.reset();                                      // e.g. on logout: new inst
 The SDK never shows the iOS ATT prompt; your app owns it (for example with
 `react-native-tracking-transparency`). The IDFA is sent only when ATT is authorized. On
 Android, see the core's notes on the `AD_ID` permission.
+
+If the app uses Firebase Analytics, its app instance ID is sent as identifier
+`firebase_app_instance_id` (for Google Ads and GA4); nothing extra to install. On iOS, set
+`appStoreId` (`id1234567890`) so events carry the `app_id` TikTok's app events need; Android
+sends the package name.
 
 ## What gets sent
 

@@ -76,6 +76,12 @@ Angler.reset()                                          // e.g. on logout: new i
   collected data types). It declares `NSPrivacyTracking = false`; that decision is pending
   review (design §11.1).
 
+- **Firebase:** if the app uses Firebase Analytics, its app instance ID is sent as identifier
+  `firebase_app_instance_id` (for Google Ads and GA4). No Firebase dependency is added; it's
+  nil until `FirebaseApp.configure()` has run.
+- **`appStoreId`:** set it to your App Store ID (`id1234567890`) to send the `app_id` device
+  property, which TikTok's app events need.
+
 ## What gets sent
 
 The payload format is pinned by the shared fixtures in [`spec/`](../spec). Two behaviours to

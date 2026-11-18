@@ -17,6 +17,11 @@ class AnglerConfiguration @JvmOverloads constructor(
     /** When full, the oldest event is dropped. */
     val maxQueueSize: Int = 1000,
     val debugLogging: Boolean = false,
+    /**
+     * Sent as the `app_id` device property, which TikTok's app events need. Defaults to the
+     * package name, the same value the AppsFlyer import sends.
+     */
+    val appId: String? = null,
 ) {
     /** `native`, or set by the React Native and Flutter wrappers. */
     var wrapper: String = "native"

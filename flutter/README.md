@@ -89,6 +89,11 @@ The SDK never shows the iOS ATT prompt; your app owns it (for example with
 that must not use the advertising ID remove the `com.google.android.gms.permission.AD_ID`
 permission with `tools:node="remove"`.
 
+If the app uses Firebase Analytics, its app instance ID is sent as identifier
+`firebase_app_instance_id` (for Google Ads and GA4); nothing extra to install. On iOS, set
+`appStoreId` (`id1234567890`) so events carry the `app_id` TikTok's app events need; Android
+sends the package name.
+
 ## What gets sent
 
 - **The whole deep-link URL is sent** as `url` on every event until the app has been in the

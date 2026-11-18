@@ -5,7 +5,6 @@ import ai.getangler.analytics.payload.PayloadBuilder
 import androidx.test.core.app.ApplicationProvider
 import android.content.Context
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,13 +22,18 @@ class DeviceContextTest {
         DeviceContext.userAgent("1.0.0", "Android", "14", "Pixel 8", "native"),
     )
 
-    @Test fun onlyAllowedNamesNeverAppId() {
+    @Test fun onlyAllowedNames() {
         val snapshot = DeviceContext.collect(context, "native", false, true)
         val names = snapshot.properties.map { it.name }
         assertEquals(names.toSet().size, names.size)
         names.forEach { assertTrue(it, it in PayloadBuilder.allowedDeviceProperties) }
-        assertFalse("app_id" in names)
         assertTrue(snapshot.properties.all { it.value.isNotEmpty() })
+    }
+
+    @Test fun appIdDefaultsToPackageNameLikeAppsFlyer() {
+        assertEquals(context.packageName, props()["app_id"])
+        val custom = DeviceContext.collect(context, "native", false, true, " com.shop.app ")
+        assertEquals("com.shop.app", custom.properties.first { it.name == "app_id" }.value)
     }
 
     @Test fun osPackageAndFlags() {

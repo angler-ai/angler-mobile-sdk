@@ -33,8 +33,8 @@ enum PayloadBuilder {
         "searchResult", "customer", "form", "contacts", "customData",
     ]
 
-    /// data-api's `device_properties[].name` enum, minus nothing: `app_id` is allowed by the
-    /// schema but never collected (it means the Facebook App ID to Meta).
+    /// data-api's `device_properties[].name` enum. `app_id` is the store app ID (App Store ID on
+    /// iOS, package name on Android), the same value the AppsFlyer import sends.
     static let allowedDeviceProperties: Set<String> = [
         "app_id", "app_package", "app_version_short", "app_version_long", "os", "os_version",
         "device_model_name", "device_timezone", "locale", "timezone_abbreviation", "carrier",

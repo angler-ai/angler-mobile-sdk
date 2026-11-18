@@ -4,6 +4,7 @@ import ai.getangler.analytics.attribution.AttributionStore
 import ai.getangler.analytics.attribution.ClickIdParser
 import ai.getangler.analytics.device.AdIdInfo
 import ai.getangler.analytics.device.AdIdProvider
+import ai.getangler.analytics.device.FirebaseIdSource
 import ai.getangler.analytics.device.InstallReferrerSource
 import ai.getangler.analytics.lifecycle.LifecycleObserver
 import ai.getangler.analytics.network.Flusher
@@ -36,6 +37,7 @@ internal class AnglerCore(
     private val scheduler: Scheduler,
     val executor: ExecutorService,
     private val attachLifecycle: (LifecycleObserver) -> Unit = {},
+    private val firebase: FirebaseIdSource = FirebaseIdSource.NONE,
 ) {
     companion object {
         const val SRC = "ANDROID"
@@ -45,6 +47,7 @@ internal class AnglerCore(
         /** First-install time, kept until app_installed is queued (survives a kill mid-wait). */
         private const val KEY_INSTALL_PENDING = "install_pending_ms"
         private val onExecutor = ThreadLocal<Boolean>()
+        const val FIREBASE_ID_NAME = "firebase_app_instance_id"
     }
 
     private val identity = IdentityStore(store)
@@ -66,6 +69,9 @@ internal class AnglerCore(
 
     /** Cached GAID; read at configure and on each new session (design §8). */
     @Volatile private var adInfo = AdIdInfo(null, false)
+
+    /** Cached Firebase app instance ID; read with the GAID. */
+    @Volatile private var firebaseId: String? = null
 
     // MARK: public operations (any thread)
 
@@ -153,6 +159,7 @@ internal class AnglerCore(
         flusher = Flusher(events, HoppingTransport(transportFactory(config)), SRC, BATCH_SIZE, hoppingScheduler(), { Math.random() })
 
         adInfo = adIds.fetch()
+        firebaseId = firebase.appInstanceId()
         val isNewInstall = identity.ensureAid().second
         if (isNewInstall) store.putString(KEY_INSTALL_PENDING, clock.nowMillis().toString())
         val installAt = store.getString(KEY_INSTALL_PENDING)?.toLongOrNull()
@@ -225,7 +232,7 @@ internal class AnglerCore(
             generatedEventId = generatedId,
             timestamp = PayloadBuilder.timestamp(at),
             clientIdOverride = config.clientId,
-            identity = IdentitySnapshot(identity.ensureAid().first, identity.customerId, "gaid", ad.gaid, identity.customIdentifiers),
+            identity = IdentitySnapshot(identity.ensureAid().first, identity.customerId, "gaid", ad.gaid, customIdentifiers()),
             attribution = attribution.snapshot(),
             device = device(config, ad.trackingEnabled, identity.applicationTrackingEnabled),
             referrer = referrerString,
@@ -233,6 +240,13 @@ internal class AnglerCore(
         events.append(event)
         Log.debug { "queued ${call.name} (${events.count} in queue)" }
         if (events.count >= config.flushAt) flusher?.flush()
+    }
+
+    /** The host's custom identifiers plus the Firebase app instance ID, unless the host set one. */
+    private fun customIdentifiers(): Map<String, String> {
+        val ids = identity.customIdentifiers
+        val id = firebaseId
+        return if (id == null || FIREBASE_ID_NAME in ids) ids else ids + (FIREBASE_ID_NAME to id)
     }
 
     private fun scheduleFlushTimer(intervalMillis: Long) {
@@ -268,6 +282,8 @@ internal class AnglerCore(
             if (!coldStart) adInfo = adIds.fetch()
             newSession = true
         }
+        // Firebase may not have had an ID yet at configure; it can also be reset between sessions.
+        if (newSession) firebaseId = firebase.appInstanceId() ?: firebaseId
         if (!newSession || !config.trackLifecycleEvents || !identity.isEnabled) return
         val launch = { record(TrackCall("app_launched", null, null, null), at, launchId, adInfo, null) }
         if (installPending) afterInstall += launch else launch()

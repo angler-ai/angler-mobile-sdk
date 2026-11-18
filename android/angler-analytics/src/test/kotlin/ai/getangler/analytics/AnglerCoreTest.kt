@@ -2,6 +2,7 @@ package ai.getangler.analytics
 
 import ai.getangler.analytics.device.AdIdInfo
 import ai.getangler.analytics.device.AdIdProvider
+import ai.getangler.analytics.device.FirebaseIdSource
 import ai.getangler.analytics.device.InstallReferrerSource
 import ai.getangler.analytics.lifecycle.LifecycleObserver
 import ai.getangler.analytics.payload.DeviceProperty
@@ -10,6 +11,7 @@ import ai.getangler.analytics.payload.JsonValue
 import ai.getangler.analytics.storage.InMemoryStore
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -36,7 +38,7 @@ class AnglerCoreTest {
 
     @After fun tearDown() = executors.forEach { it.shutdownNow() }
 
-    private fun makeCore(transport: FakeTransport = this.transport): AnglerCore {
+    private fun makeCore(transport: FakeTransport = this.transport, firebase: FirebaseIdSource = FirebaseIdSource.NONE): AnglerCore {
         val executor = Executors.newSingleThreadExecutor().also { executors += it }
         return AnglerCore(
             store = store,
@@ -55,6 +57,7 @@ class AnglerCoreTest {
             scheduler = scheduler,
             executor = executor,
             attachLifecycle = { observers += it },
+            firebase = firebase,
         )
     }
 
@@ -243,6 +246,28 @@ class AnglerCoreTest {
         assertEquals(JsonValue.Obj(expected), events[0]["data"])
         assertEquals(JsonValue.Str("custom_event"), events[1]["event_name"])
         assertEquals(JsonValue.Str("level_up"), events[1]["custom_event_name"])
+    }
+
+    @Test fun firebaseAppInstanceIdIsSentWhenAvailable() {
+        val core = makeCore(firebase = { "fb-123" })
+        core.configure(config())
+        core.track("product_viewed")
+        assertEquals("fb-123", ids(core.queuedBodies().first())["firebase_app_instance_id"])
+    }
+
+    @Test fun noFirebaseMeansNoFirebaseIdentifier() {
+        val core = makeCore()
+        core.configure(config())
+        core.track("product_viewed")
+        assertFalse(ids(core.queuedBodies().first()).containsKey("firebase_app_instance_id"))
+    }
+
+    @Test fun hostSetFirebaseIdWins() {
+        val core = makeCore(firebase = { "auto" })
+        core.configure(config())
+        core.setIdentifier("firebase_app_instance_id", "manual")
+        core.track("product_viewed")
+        assertEquals("manual", ids(core.queuedBodies().first())["firebase_app_instance_id"])
     }
 
     @Test fun clientIdOverride() {

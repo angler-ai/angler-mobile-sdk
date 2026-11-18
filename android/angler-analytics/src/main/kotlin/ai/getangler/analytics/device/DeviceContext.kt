@@ -18,7 +18,7 @@ import java.util.TimeZone
 internal object DeviceContext {
     private const val GB = 1024L * 1024L * 1024L
 
-    fun collect(context: Context, wrapper: String, adTrackingEnabled: Boolean, applicationTrackingEnabled: Boolean): DeviceSnapshot {
+    fun collect(context: Context, wrapper: String, adTrackingEnabled: Boolean, applicationTrackingEnabled: Boolean, appId: String? = null): DeviceSnapshot {
         val props = ArrayList<DeviceProperty>()
         fun add(name: String, value: String?) {
             if (!value.isNullOrEmpty()) props += DeviceProperty(name, value)
@@ -26,6 +26,7 @@ internal object DeviceContext {
         val app = context.applicationContext ?: context
         val tz = TimeZone.getDefault()
 
+        add("app_id", appId?.trim()?.takeIf { it.isNotEmpty() } ?: app.packageName)
         add("app_package", app.packageName)
         safe {
             @Suppress("DEPRECATION")

@@ -35,7 +35,10 @@ internal object PayloadBuilder {
         "searchResult", "customer", "form", "contacts", "customData",
     )
 
-    /** data-api's `device_properties[].name` enum. `app_id` is allowed but never collected. */
+    /**
+     * data-api's `device_properties[].name` enum. `app_id` is the store app ID (package name on
+     * Android, App Store ID on iOS), the same value the AppsFlyer import sends.
+     */
     val allowedDeviceProperties: Set<String> = setOf(
         "app_id", "app_package", "app_version_short", "app_version_long", "os", "os_version",
         "device_model_name", "device_timezone", "locale", "timezone_abbreviation", "carrier",

@@ -88,6 +88,10 @@ Angler.reset()                                     // e.g. on logout: new instal
 
 - **GAID:** read off the main thread at configure and on each new session. Not sent when
   limit-ad-tracking is on or Play services are missing.
+- **Firebase:** if the app includes Firebase Analytics, its app instance ID is sent as
+  identifier `firebase_app_instance_id` (for Google Ads and GA4). No Firebase dependency is
+  added; the library's consumer R8 rules keep the two methods it reads.
+- **`app_id`:** the package name, unless `AnglerConfiguration(appId = …)` overrides it.
 - **`AD_ID` permission:** the library declares `com.google.android.gms.permission.AD_ID`. Apps
   that must not use the advertising ID (for example, apps for children) remove it:
 

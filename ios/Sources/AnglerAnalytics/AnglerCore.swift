@@ -52,6 +52,7 @@ final class AnglerCore {
     private let queueDirectory: URL
     private let transportFactory: (AnglerConfiguration) -> Transport
     private let adIds: AdIdProviding
+    private let firebase: FirebaseIdProviding
     private let device: (AnglerConfiguration, Bool, Bool) -> DeviceSnapshot
     private let uuid: () -> String
     private let scheduler: Scheduler
@@ -84,11 +85,13 @@ final class AnglerCore {
          lifecycle: LifecycleNotifications?,
          backgroundTasks: BackgroundTasking?,
          protectedData: ProtectedDataGate? = nil,
+         firebase: FirebaseIdProviding = NoFirebaseIdProvider(),
          queue: DispatchQueue = DispatchQueue(label: AnglerCore.queueLabel)) {
         self.clock = clock
         self.queueDirectory = queueDirectory
         self.transportFactory = transportFactory
         self.adIds = adIds
+        self.firebase = firebase
         self.device = device
         self.uuid = uuid
         self.scheduler = scheduler
@@ -288,7 +291,7 @@ final class AnglerCore {
             timestamp: PayloadBuilder.timestamp(date),
             clientIdOverride: config.clientId,
             identity: IdentitySnapshot(aid: identity.ensureAid().aid, customerId: identity.customerId,
-                                       adIdName: "idfa", adId: idfa, custom: identity.customIdentifiers),
+                                       adIdName: "idfa", adId: idfa, custom: customIdentifiers()),
             attribution: attribution.snapshot(),
             device: device(config, authorized, identity.applicationTrackingEnabled),
             referrer: nil
@@ -297,6 +300,15 @@ final class AnglerCore {
         Log.debug("queued \(call.name) (\(events.count) in queue)")
         if events.count >= config.flushAt { flusher?.flush(completion: nil) }
     }
+
+    /// The host's custom identifiers plus the Firebase app instance ID, unless the host set one.
+    private func customIdentifiers() -> [String: String] {
+        var ids = identity.customIdentifiers
+        if ids[Self.firebaseIdName] == nil, let id = firebase.appInstanceId() { ids[Self.firebaseIdName] = id }
+        return ids
+    }
+
+    static let firebaseIdName = "firebase_app_instance_id"
 
     private func scheduleFlushTimer(interval: TimeInterval) {
         guard interval > 0 else { return }
