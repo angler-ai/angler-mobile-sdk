@@ -20,9 +20,14 @@ xcrun simctl openurl booted "anglerexample://p/1?gclid=rn-cold"
 
 ## Android
 
-The Android module depends on the Maven artifact `ai.getangler:analytics:<version>`. Until it is
-published (or published to `mavenLocal` with `cd ../../android && ./gradlew publishToMavenLocal`,
-which needs the publishing config from the release plan), the Android app doesn't build.
+The Android module depends on the Maven artifact `ai.getangler:analytics` at the package's
+version. The example also looks in `mavenLocal`, so to build before a version is on Maven
+Central, publish the core there first: `cd ../../android && ./gradlew publishToMavenLocal`.
+
+```sh
+npm install
+npm run android
+```
 
 ```sh
 adb shell am start -a android.intent.action.VIEW -d "anglerexample://p/1?gclid=rn-cold"

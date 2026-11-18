@@ -1,7 +1,18 @@
 # @anglerai/react-native-analytics
 
-Angler app events and ad-attribution signals for React Native (iOS and Android), over the
-native Angler SDKs. React Native 0.76+ with the New Architecture.
+Angler app events and ad-attribution signals for React Native apps on iOS and Android. A thin
+wrapper over the native Angler SDKs.
+
+For the list of events, what the SDK collects and how delivery works, see the
+[main README](https://github.com/angler-ai/angler-mobile-sdk#readme).
+
+## Requirements
+
+- React Native 0.76 or later with the **New Architecture** (the default since 0.76). On the old
+  architecture the module doesn't load, and every call does nothing.
+- iOS 15.1+, Android minSdk 24 (React Native's own minimums).
+- **Expo:** works in a development build or with `expo prebuild`. Expo Go can't load native
+  modules.
 
 ## Install
 
@@ -10,47 +21,76 @@ npm install @anglerai/react-native-analytics
 cd ios && pod install
 ```
 
-iOS compiles the Swift core from source inside the package (no extra pod). Android depends on
-the Maven artifact `ai.getangler:analytics` at the same version.
+There's nothing else to link. iOS compiles the Swift core from source inside the package, and
+Android pulls `ai.getangler:analytics` from Maven Central at the same version.
 
-## Configure and track
+## Configure
+
+Configure once, at startup, outside any component:
+
+```ts
+// index.js
+import { Angler } from '@anglerai/react-native-analytics';
+
+Angler.configure({
+  workspaceId: '<workspace id>',
+  token: '<workspace token>',
+  appStoreId: 'id1234567890', // optional; sent as app_id on iOS (TikTok app events need it)
+});
+```
+
+Calling `configure` again (for example on Fast Refresh) is ignored.
+
+| Option | Default | |
+|---|---|---|
+| `domain` | `'data.getangler.ai'` | `'dev-data.getangler.ai'` while testing. |
+| `clientId` | install ID | Overrides `client_id`. |
+| `appStoreId` | none | Your App Store ID, sent as `app_id` on iOS. Android sends the package name. |
+| `autoHandleDeepLinks` | `true` | Forward the launch URL and every `Linking` URL automatically. |
+| `trackLifecycleEvents` | `true` | Send `app_installed` and `app_launched`. |
+| `flushAt` | `20` | Queued events that trigger a send. |
+| `flushIntervalSeconds` | `30` | Seconds between periodic sends. |
+| `maxQueueSize` | `1000` | Oldest events are dropped beyond this. |
+| `debugLogging` | `false` | Log every queued and delivered event (in the native logs). |
+
+## Track events
 
 ```ts
 import { Angler, AnglerEvent } from '@anglerai/react-native-analytics';
 
-// Once at startup, e.g. in index.js or your root component's module scope.
-// Calling it again (Fast Refresh) is ignored.
-Angler.configure({ workspaceId: '<workspace id>', token: '<workspace token>' });
+// Standard events; `data` is typed (AnglerData)
+Angler.track(AnglerEvent.productViewed, {
+  data: { productVariant: { id: 'variant-1', title: 'Linen shirt', price: { amount: 29, currencyCode: 'USD' } } },
+});
 
-// Standard events; `data` is typed (AnglerData, generated from data-api's schema)
 Angler.track(AnglerEvent.productAddedToCart, {
   data: { cartLine: { quantity: 1, merchandise: { id: 'variant-1', price: { amount: 29, currencyCode: 'USD' } } } },
 });
+
 Angler.track(AnglerEvent.checkoutCompleted, {
   data: { checkout: { currencyCode: 'USD', totalPrice: { amount: 58, currencyCode: 'USD' } } },
-  eventId: 'order-123',                                          // your own ID, for deduplication
+  eventId: 'order-1001', // your order ID, so the purchase isn't counted twice
 });
 
-// Any other string is a custom event; properties become data.customData
-Angler.track('level_up', { properties: { level: '2' } });
+// Any other name is a custom event; properties are added to data.customData
+Angler.track('wishlist_added', { properties: { product_id: 'variant-1' } });
 ```
 
-`AnglerEvent` lists the standard event names. `AnglerData` has one field per data object data-api
-accepts (`cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
-`customer`, `form`, `contacts`, `customData`); the nested types (`AnglerCartLine`,
-`AnglerMoney`, …) are exported too.
+`AnglerEvent` has a key per [standard event](https://github.com/angler-ai/angler-mobile-sdk#events).
+`AnglerData` has one field per data object (`cart`, `cartLine`, `checkout`, `collection`,
+`productVariant`, `searchResult`, `customer`, `form`, `contacts`, `customData`), and the nested
+types (`AnglerCartLine`, `AnglerMoney`, …) are exported for your own code.
 
-Options: `domain` (`dev-data.getangler.ai` for testing), `clientId`, `appStoreId`, `trackLifecycleEvents`,
-`flushAt`, `flushIntervalSeconds`, `maxQueueSize`, `debugLogging`, `autoHandleDeepLinks`.
-
-No method throws: problems are logged with `console.warn` in development. `data` that can't be
-serialized (cycles, `BigInt`) is dropped and the event is still sent.
+No method throws or returns a promise. Problems are logged with `console.warn` in development.
+`data` that can't be serialized (cycles, `BigInt`) is dropped and the event is still sent.
 
 ## Deep links
 
 With `autoHandleDeepLinks` (the default), the SDK forwards the launch URL
-(`Linking.getInitialURL()`) and every later `Linking` URL event. Your app still has to deliver
-URLs to `Linking`, as React Native's docs describe. On iOS, add this to `AppDelegate.mm`:
+(`Linking.getInitialURL()`) and every later `Linking` URL event, so click IDs from ads are
+captured. Your app still has to deliver URLs to `Linking`, as React Native's
+[Linking docs](https://reactnative.dev/docs/linking) describe. On iOS that means, in
+`AppDelegate.mm`:
 
 ```objc
 #import <React/RCTLinkingManager.h>
@@ -60,34 +100,51 @@ URLs to `Linking`, as React Native's docs describe. On iOS, add this to `AppDele
 {
   return [RCTLinkingManager application:app openURL:url options:options];
 }
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *))restorationHandler
+{
+  return [RCTLinkingManager application:application continueUserActivity:userActivity
+                     restorationHandler:restorationHandler];
+}
 ```
 
-To filter URLs yourself, set `autoHandleDeepLinks: false` and call `Angler.handleDeepLink(url)`.
+To filter URLs yourself (for example to strip tokens), set `autoHandleDeepLinks: false` and call
+`Angler.handleDeepLink(url)`.
 
 ## Identity, consent and opt-out
 
 ```ts
-Angler.setUserId('customer-42');                     // customer_id; null clears it
-Angler.setIdentifier('appsflyer_id', afId);          // custom identifiers; null removes
-Angler.setApplicationTrackingEnabled(false);         // sent as application_tracking_enabled
-Angler.setEnabled(false);                            // stop collecting and delete queued events
-Angler.reset();                                      // e.g. on logout: new install ID
+Angler.setUserId('customer-42');                // customer_id; null clears it
+Angler.setIdentifier('loyalty_id', 'L-123');    // custom identifier; null removes it
+Angler.setApplicationTrackingEnabled(false);    // the user declined tracking in your app
+Angler.setEnabled(false);                       // stop collecting and delete queued events
+Angler.reset();                                 // on logout
+Angler.flush();                                 // send the queue now
 ```
 
-The SDK never shows the iOS ATT prompt; your app owns it (for example with
-`react-native-tracking-transparency`). The IDFA is sent only when ATT is authorized. On
-Android, see the core's notes on the `AD_ID` permission.
+- **iOS tracking permission (ATT):** the SDK never shows the prompt. Request it yourself, for
+  example with `react-native-tracking-transparency` or `expo-tracking-transparency`, and add
+  `NSUserTrackingUsageDescription` to `Info.plist`. The IDFA is sent only once tracking is
+  authorized.
+- **Android advertising ID:** the library adds the `AD_ID` permission. Apps that must not use
+  it remove it with `tools:node="remove"` in `AndroidManifest.xml`.
+- **Firebase:** if the app uses Firebase Analytics (for example `@react-native-firebase/analytics`),
+  its app instance ID is sent as `firebase_app_instance_id`. Nothing to configure.
 
-If the app uses Firebase Analytics, its app instance ID is sent as identifier
-`firebase_app_instance_id` (for Google Ads and GA4); nothing extra to install. On iOS, set
-`appStoreId` (`id1234567890`) so events carry the `app_id` TikTok's app events need; Android
-sends the package name.
+## Check it works
 
-## What gets sent
+Set `domain: 'dev-data.getangler.ai'` and `debugLogging: true`, then watch the native logs:
+Xcode's console (subsystem `ai.getangler.analytics`) or `adb logcat -s Angler`. Look for
+`queued app_launched` and `delivered … event(s)`. `HTTP 401`/`403` means the workspace ID or
+token is wrong. If nothing is logged at all, check that the New Architecture is on and that
+you rebuilt the app after installing.
 
-- **The whole deep-link URL is sent** as `url` on every event until the app has been in the
-  background for 30 minutes, and every `Linking` URL is forwarded by default. If your app
-  receives URLs carrying secrets (OAuth `code`, magic-link or password-reset tokens, emails),
-  set `autoHandleDeepLinks: false` and pass only cleaned URLs.
-- **`app_installed` means "first run with the SDK".** When you add the SDK to an app that's
-  already published, existing users send `app_installed` on their first launch after updating.
+## Good to know
+
+- `app_installed` means "first run with the SDK": existing users send it on their first launch
+  after you add the SDK.
+- The whole deep-link URL is sent as `url` on every event until the app has been in the
+  background for 30 minutes. If your app receives URLs carrying secrets (OAuth codes,
+  magic-link or password-reset tokens, emails), turn off `autoHandleDeepLinks` and pass cleaned
+  URLs.

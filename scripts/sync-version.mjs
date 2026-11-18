@@ -61,6 +61,28 @@ for (const { path, re } of TARGETS) {
   }
 }
 
+// Install snippets in the docs. Every occurrence is updated; a missing file is skipped.
+const DOCS = [
+  { paths: ['README.md', 'android/README.md'], re: /(ai\.getangler:analytics:)([0-9A-Za-z.+-]+)()/g },
+  { paths: ['README.md', 'ios/README.md'], re: /(angler-mobile-sdk(?:\.git)?", exact: ")([^"]+)(")/g },
+  { paths: ['README.md', 'flutter/README.md'], re: /(angler_analytics: \^)([0-9A-Za-z.+-]+)()/g },
+];
+for (const { paths, re } of DOCS) {
+  for (const path of paths) {
+    const file = join(root, path);
+    if (!existsSync(file)) continue;
+    const text = readFileSync(file, 'utf8');
+    const stale = [...text.matchAll(re)].filter((m) => m[2] !== version).map((m) => m[2]);
+    if (stale.length === 0) continue;
+    if (check) {
+      mismatched.push(`${path}: ${stale[0]} (VERSION is ${version})`);
+    } else {
+      writeFileSync(file, text.replace(re, (_, before, _old, after) => `${before}${version}${after}`));
+      console.log(`sync-version: ${path} ${stale[0]} → ${version}`);
+    }
+  }
+}
+
 if (check) {
   if (mismatched.length > 0) {
     console.error(`sync-version: these files don't match VERSION:\n  ${mismatched.join('\n  ')}`);

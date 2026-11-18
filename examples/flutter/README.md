@@ -14,8 +14,13 @@ xcrun simctl openurl booted "anglerexample://p/1?gclid=fl-cold"
 
 ## Android
 
-The plugin depends on the Maven artifact `ai.getangler:analytics:<version>`; until it's published
-(or in `mavenLocal`), the Android app doesn't build.
+The plugin depends on the Maven artifact `ai.getangler:analytics` at the plugin's version. The
+example also looks in `mavenLocal`, so to build before a version is on Maven Central, publish
+the core there first: `cd ../../android && ./gradlew publishToMavenLocal`.
+
+```sh
+flutter run
+```
 
 ```sh
 adb shell am start -a android.intent.action.VIEW -d "anglerexample://p/1?gclid=fl-cold"

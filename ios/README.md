@@ -1,47 +1,83 @@
 # Angler for iOS (Swift)
 
-App events and ad-attribution signals (IDFA, click IDs) for Angler. iOS 15+, no dependencies.
-Distributed with Swift Package Manager from the repo root `Package.swift`.
+App events and ad-attribution signals (IDFA, click IDs) for Angler. iOS 15+, Swift 5.9+, no
+dependencies. Safe to link from app extensions.
+
+For the list of events, what the SDK collects and how delivery works, see the
+[main README](../README.md).
 
 ## Install
 
-In Xcode: **File → Add Package Dependencies…**, enter this repository's URL, and add the
-`AnglerAnalytics` product to your app target. Or in `Package.swift`:
+In Xcode: **File → Add Package Dependencies…**, enter
+`https://github.com/angler-ai/angler-mobile-sdk`, and add the `AnglerAnalytics` product to your
+app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/angler-ai/angler-mobile-sdk", from: "0.1.0")
+.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.1")
 ```
 
-## Configure and track
+Release candidates need an exact version; from `0.1.0` on, `from: "0.1.0"` works.
+
+## Configure
+
+Configure once, as early as possible:
 
 ```swift
 import AnglerAnalytics
 
-// In App.init() or application(_:didFinishLaunchingWithOptions:)
-Angler.configure(AnglerConfiguration(workspaceId: "<workspace id>", token: "<workspace token>"))
+@main
+struct ShopApp: App {
+    init() {
+        Angler.configure(AnglerConfiguration(
+            workspaceId: "<workspace id>",
+            token: "<workspace token>",
+            appStoreId: "id1234567890"      // optional; sent as app_id (TikTok app events need it)
+        ))
+    }
+    var body: some Scene { WindowGroup { ContentView() } }
+}
+```
 
-// Standard events, with typed data objects (generated from data-api's schema)
+With UIKit, call it in `application(_:didFinishLaunchingWithOptions:)`.
+
+| Option | Default | |
+|---|---|---|
+| `domain` | `"data.getangler.ai"` | `"dev-data.getangler.ai"` while testing. |
+| `clientId` | install ID | Overrides `client_id`. |
+| `appStoreId` | `nil` | Your App Store ID (`id1234567890` or `1234567890`), sent as `app_id`. |
+| `trackLifecycleEvents` | `true` | Send `app_installed` and `app_launched`. |
+| `flushAt` | `20` | Queued events that trigger a send. |
+| `flushInterval` | `30` | Seconds between periodic sends. |
+| `maxQueueSize` | `1000` | Oldest events are dropped beyond this. |
+| `debugLogging` | `false` | Log every queued and delivered event. |
+
+## Track events
+
+```swift
+// Standard events, with typed data objects
+Angler.track(.productViewed, data: AnglerData(productVariant: AnglerProductVariant(
+    id: "variant-1", price: AnglerMoney(amount: 29, currencyCode: "USD"), title: "Linen shirt"
+)))
+
 Angler.track(.productAddedToCart, data: AnglerData(cartLine: AnglerCartLine(
     merchandise: AnglerProductVariant(id: "variant-1", price: AnglerMoney(amount: 29, currencyCode: "USD")),
     quantity: 1
 )))
+
 Angler.track(.checkoutCompleted, data: AnglerData(checkout: AnglerCheckout(
     currencyCode: "USD", totalPrice: AnglerMoney(amount: 58, currencyCode: "USD")
-)), eventId: "order-123")                                        // your own ID, for deduplication
+)), eventId: "order-1001")                         // your order ID, so the purchase isn't counted twice
 
-// Any other name is a custom event; properties become data.customData
-Angler.track(.custom("level_up"), properties: ["level": "2"])
+// Custom events; properties are added to data.customData
+Angler.track(.custom("wishlist_added"), properties: ["product_id": "variant-1"])
 
-// Untyped form: a string name and a dictionary with the same keys as AnglerData
+// Untyped form: a string name and a dictionary with AnglerData's keys
 Angler.track("product_viewed", data: ["productVariant": ["id": "variant-1"]])
 ```
 
-`AnglerEvent` lists the standard event names. `AnglerData` has one field per data object data-api
-accepts: `cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
+`AnglerEvent` has a case per [standard event](../README.md#events). `AnglerData` has one field
+per data object: `cart`, `cartLine`, `checkout`, `collection`, `productVariant`, `searchResult`,
 `customer`, `form`, `contacts` and `customData`.
-
-Pass `domain: "dev-data.getangler.ai"` to send to the dev environment. `track` before
-`configure` is dropped with a warning; every other method works before `configure`.
 
 ## Deep links
 
@@ -51,48 +87,53 @@ Pass every URL that opens the app, so click IDs (`gclid`, `fbclid`, `ttclid`, �
 // SwiftUI
 WindowGroup { ContentView().onOpenURL { Angler.handleDeepLink($0) } }
 
-// UIKit (scene delegate)
+// UIKit scene delegate: custom schemes, then universal links
 func scene(_ scene: UIScene, openURLContexts contexts: Set<UIOpenURLContext>) {
     contexts.forEach { Angler.handleDeepLink($0.url) }
 }
+func scene(_ scene: UIScene, continue activity: NSUserActivity) {
+    if let url = activity.webpageURL { Angler.handleDeepLink(url) }
+}
 ```
 
-Universal links work the same way: pass `userActivity.webpageURL`.
+For a cold start from a link in UIKit, also handle `connectionOptions.urlContexts` and
+`connectionOptions.userActivities` in `scene(_:willConnectTo:options:)`.
 
 ## Identity, consent and opt-out
 
 ```swift
-Angler.setUserId("customer-42")                         // customer_id; nil clears it
-Angler.setIdentifier("appsflyer_id", value: afId)       // custom identifiers; nil removes
-Angler.setApplicationTrackingEnabled(false)             // sent as application_tracking_enabled
-Angler.setEnabled(false)                                // stop collecting and delete queued events
-Angler.reset()                                          // e.g. on logout: new install ID
+Angler.setUserId("customer-42")                       // customer_id; nil clears it
+Angler.setIdentifier("loyalty_id", value: "L-123")    // custom identifier; nil removes it
+Angler.setApplicationTrackingEnabled(false)           // the user declined tracking in your app
+Angler.setEnabled(false)                              // stop collecting and delete queued events
+Angler.reset()                                        // on logout
+Angler.flush()                                        // send the queue now
 ```
 
-- **ATT:** the SDK never shows the App Tracking Transparency prompt. Your app owns it
-  (`ATTrackingManager.requestTrackingAuthorization`). The SDK reads the status on every event
-  and sends the IDFA only when it is `.authorized`.
-- **Privacy manifest:** the package ships `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`,
-  collected data types). It declares `NSPrivacyTracking = false`; that decision is pending
-  review (design §11.1).
+- **App Tracking Transparency:** the SDK never shows the prompt. Request it yourself with
+  `ATTrackingManager.requestTrackingAuthorization` (and add `NSUserTrackingUsageDescription` to
+  `Info.plist`). The IDFA is sent only once the status is `.authorized`.
+- **Firebase:** if the app uses Firebase Analytics, its app instance ID is sent as
+  `firebase_app_instance_id`, with no Firebase dependency added. It appears once
+  `FirebaseApp.configure()` has run.
+- **Privacy manifest:** the package ships `PrivacyInfo.xcprivacy`, which Xcode merges into
+  your app's privacy report. It lists the data types the SDK collects; include them in your App
+  Store privacy details.
 
-- **Firebase:** if the app uses Firebase Analytics, its app instance ID is sent as identifier
-  `firebase_app_instance_id` (for Google Ads and GA4). No Firebase dependency is added; it's
-  nil until `FirebaseApp.configure()` has run.
-- **`appStoreId`:** set it to your App Store ID (`id1234567890`) to send the `app_id` device
-  property, which TikTok's app events need.
+## Check it works
 
-## What gets sent
+Set `domain: "dev-data.getangler.ai"` and `debugLogging: true`, run the app, and look for
+`queued app_launched` and `delivered … event(s)` in the Xcode console (or Console.app,
+subsystem `ai.getangler.analytics`). `HTTP 401`/`403` means the workspace ID or token is wrong.
 
-The payload format is pinned by the shared fixtures in [`spec/`](../spec). Two behaviours to
-know about:
+## Good to know
 
-- **The whole deep-link URL is sent** as `url` on every event until the app has been in the
-  background for 30 minutes. Don't pass URLs that carry secrets (OAuth `code`, magic-link or
-  password-reset tokens, emails): pass a URL with those parameters removed, or skip
-  `handleDeepLink` for them.
-- **`app_installed` means "first run with the SDK".** When you add the SDK to an app that's
-  already published, existing users send `app_installed` on their first launch after updating.
-- `app_launched` is sent when the app comes to the foreground on a cold start, or after 30+
-  minutes in the background. Background-only launches (silent push, background fetch) don't
-  count.
+- `track` before `configure` is dropped with a warning; every other call works before it.
+- `app_installed` means "first run with the SDK": existing users send it on their first launch
+  after you add the SDK.
+- `app_launched` is sent on a cold start that reaches the foreground and after 30+ minutes in
+  the background. Background-only launches (silent push, background fetch) don't count.
+- Before the device is first unlocked after a reboot, configuration waits until it is, so a
+  background launch at that point doesn't create a new install ID.
+- The whole deep-link URL is sent as `url`. Don't pass URLs carrying secrets (OAuth codes,
+  password-reset tokens, emails); remove those parameters first.
