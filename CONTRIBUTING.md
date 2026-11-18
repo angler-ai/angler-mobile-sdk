@@ -11,6 +11,9 @@
 - **The typed models are generated.** `AnglerEvent`, `AnglerData` and the nested `Angler*`
   types in all four languages come from the schema snapshot. Don't edit the `*.generated.*`
   files by hand.
+- **So are the docs.** `docs/` is generated from the same snapshot plus the examples and notes
+  in `scripts/docs-content.mjs` (`node scripts/generate-docs.mjs`). Edit that file, not the
+  pages. The generator checks every example against the schema.
 - **One version.** `VERSION` at the root is the only place to change it.
 
 ## Tools
@@ -33,6 +36,7 @@ CI runs these on every pull request (only for the platforms a change touches):
 node --test scripts/test/
 node scripts/sync-version.mjs --check
 node scripts/generate-models.mjs --check
+node scripts/generate-docs.mjs --check
 
 # iOS
 swift test
@@ -55,12 +59,16 @@ The wrappers' Android code builds against the Kotlin core from `mavenLocal` in C
 ## Common changes
 
 **The events API added a field or event.** Re-export the schema snapshot from the API repo,
-regenerate the models and commit both:
+regenerate the models and docs, and commit them all:
 
 ```sh
 node spec/scripts/export-schema.mjs <path to the API repo> origin/main
 node scripts/generate-models.mjs
+node scripts/generate-docs.mjs
 ```
+
+A new object type needs an example: the docs generator fails until `scripts/docs-content.mjs`
+has one that reaches it.
 
 **Swift core changed.** The React Native and Flutter packages compile a copy of the Swift
 sources. CI and the publish scripts copy it for you; to build the example apps locally, run
