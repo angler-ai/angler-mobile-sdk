@@ -79,6 +79,8 @@ jobs:
         run: node --test scripts/test/
       - name: Typed models match the schema snapshot
         run: node scripts/generate-models.mjs --check
+      - name: docs/ matches the schema snapshot and examples
+        run: node scripts/generate-docs.mjs --check
 
   spec:
     needs: changes

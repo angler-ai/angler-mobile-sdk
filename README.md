@@ -90,6 +90,9 @@ string key/value pairs passed as `properties` are added to `customData`. The typ
 from the API schema in [`spec/schema`](spec/schema), so the compiler catches fields the API
 doesn't accept.
 
+**[docs/](docs/README.md) has a page for every data object**, with all its fields and an example
+in Swift, Kotlin, TypeScript, Dart and JSON.
+
 ## What the SDK collects
 
 **Identifiers** (sent in `identifiers`):
@@ -192,12 +195,13 @@ Switch `domain` back to the default and `debugLogging` off before you release.
 ```
 Package.swift   SPM manifest (must be at the repo root); points into ios/
 spec/           API schema snapshot and shared test fixtures every SDK runs against
+docs/           a reference page per event data object (generated)
 ios/            Swift core
 android/        Kotlin core
 react-native/   React Native wrapper (TurboModule)
 flutter/        Flutter plugin
 examples/       a small sample app per platform
-scripts/        version sync and typed-model generation
+scripts/        version sync, typed-model and docs generation
 ```
 
 - [CONTRIBUTING.md](CONTRIBUTING.md): building, testing and changing the SDKs.

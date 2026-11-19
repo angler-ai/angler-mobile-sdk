@@ -32,5 +32,5 @@ react-native/ios/vendor/
 # Example app local credentials
 examples/ios/Local.xcconfig
 
-# Design doc and plans are kept outside the repo for now
-docs/
+# Design doc and plans are kept outside the repo for now (docs/ itself is the published reference)
+docs/superpowers/
