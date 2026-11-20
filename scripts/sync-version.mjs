@@ -62,10 +62,14 @@ for (const { path, re } of TARGETS) {
 }
 
 // Install snippets in the docs. Every occurrence is updated; a missing file is skipped.
+// SITE is the public docs page, synced to the docs site by .github/workflows/sync-docs.yml.
+const SITE = 'site/mobile-sdk.md';
 const DOCS = [
-  { paths: ['README.md', 'android/README.md'], re: /(ai\.getangler:analytics:)([0-9A-Za-z.+-]+)()/g },
-  { paths: ['README.md', 'ios/README.md'], re: /(angler-mobile-sdk(?:\.git)?", exact: ")([^"]+)(")/g },
-  { paths: ['README.md', 'flutter/README.md'], re: /(angler_analytics: \^)([0-9A-Za-z.+-]+)()/g },
+  { paths: ['README.md', 'android/README.md', SITE], re: /(ai\.getangler:analytics:)([0-9A-Za-z.+-]+)()/g },
+  { paths: ['README.md', 'ios/README.md', SITE], re: /(angler-mobile-sdk(?:\.git)?", exact: ")([^"]+)(")/g },
+  { paths: ['README.md', 'flutter/README.md', SITE], re: /(angler_analytics: \^)([0-9A-Za-z.+-]+)()/g },
+  // npm installs pin the version: prereleases publish under the `next` tag, not `latest`.
+  { paths: ['README.md', 'react-native/README.md', SITE], re: /(npm install @anglerai\/react-native-analytics@)([0-9A-Za-z.+-]+)()/g },
 ];
 for (const { paths, re } of DOCS) {
   for (const path of paths) {
