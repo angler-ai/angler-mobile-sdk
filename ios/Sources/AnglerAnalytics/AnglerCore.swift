@@ -232,6 +232,16 @@ final class AnglerCore {
         }
     }
 
+    /// Runs `completion` on the queue with the `client_id` events carry: the configured
+    /// `clientId`, else the install ID. Nil before `configure` has run and while disabled.
+    func getClientId(completion: @escaping (String?) -> Void) {
+        queue.async {
+            guard let config = self.configuration, self.identity.isEnabled else { return completion(nil) }
+            if let id = config.clientId, !id.isEmpty { return completion(id) }
+            completion(self.identity.ensureAid().aid)
+        }
+    }
+
     // MARK: - On queue
 
     private func doConfigure(_ config: AnglerConfiguration) {

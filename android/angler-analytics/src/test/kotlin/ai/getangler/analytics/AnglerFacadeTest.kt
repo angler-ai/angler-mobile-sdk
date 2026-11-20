@@ -12,6 +12,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.util.concurrent.Executors
+import kotlin.coroutines.startCoroutine
 
 @RunWith(RobolectricTestRunner::class)
 class AnglerFacadeTest {
@@ -47,5 +48,21 @@ class AnglerFacadeTest {
         assertEquals("g1", ids["gclid"])
         assertEquals("cust-1", ids["customer_id"])
         assertSame(config, core.configuration)
+    }
+
+    @Test fun getClientIdIsNullBeforeConfigureThenTheInstallId() {
+        Angler.resetForTesting()
+        Angler.coreFactory = { core }
+        var before: String? = "unset"
+        Angler.getClientId { before = it }
+        org.junit.Assert.assertNull(before)
+        Angler.configure(ApplicationProvider.getApplicationContext(), AnglerConfiguration("ws", "tok", trackLifecycleEvents = false))
+        val result = java.util.concurrent.CompletableFuture<String?>()
+        suspend { Angler.getClientId() }.startCoroutine(
+            kotlin.coroutines.Continuation(kotlin.coroutines.EmptyCoroutineContext) { result.complete(it.getOrNull()) })
+        val id = result.get(5, java.util.concurrent.TimeUnit.SECONDS)
+        org.junit.Assert.assertNotNull(id)
+        Angler.track("product_viewed")
+        assertEquals(id, core.queuedBodies().last()["client_id"]!!.str)
     }
 }

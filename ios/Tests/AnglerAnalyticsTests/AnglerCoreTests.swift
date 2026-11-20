@@ -432,6 +432,52 @@ final class AnglerCoreTests: XCTestCase {
         XCTAssertEqual(names(core), ["app_installed"])
     }
 
+    // MARK: client ID
+
+    private func clientId(_ core: AnglerCore) -> String?? {
+        let done = expectation(description: "getClientId")
+        var result: String??
+        core.getClientId { result = .some($0); done.fulfill() }
+        wait(for: [done], timeout: 5)
+        return result
+    }
+
+    func testClientIdIsNilBeforeConfigure() {
+        let core = makeCore()
+        XCTAssertEqual(clientId(core), .some(nil))
+        core.configure(config(lifecycle: true))
+        XCTAssertEqual(names(core), ["app_installed"], "asking first doesn't use up the install event")
+    }
+
+    func testClientIdIsTheInstallIdEventsCarry() throws {
+        transport.defaultStatus = nil
+        let core = makeCore()
+        core.configure(config())
+        core.track("product_viewed")
+        let sent = try XCTUnwrap(core.queuedBodies().last?["client_id"]?.stringValue)
+        XCTAssertEqual(clientId(core), .some(sent))
+        XCTAssertEqual(identifiers(core.queuedBodies().last!)["aid"], sent)
+    }
+
+    func testClientIdPrefersTheConfiguredOverride() {
+        let core = makeCore()
+        core.configure(config(clientId: "crm-1"))
+        XCTAssertEqual(clientId(core), .some("crm-1"))
+    }
+
+    func testClientIdChangesOnResetAndIsNilWhileDisabled() throws {
+        let core = makeCore()
+        core.configure(config())
+        let before = try XCTUnwrap(clientId(core) ?? nil)
+        core.reset()
+        let after = try XCTUnwrap(clientId(core) ?? nil)
+        XCTAssertNotEqual(before, after)
+        core.setEnabled(false)
+        XCTAssertEqual(clientId(core), .some(nil))
+        core.setEnabled(true)
+        XCTAssertEqual(clientId(core), .some(after))
+    }
+
     // MARK: delivery
 
     func testNewCoreSameDirectorySendsOldEvents() {

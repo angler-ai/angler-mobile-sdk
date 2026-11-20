@@ -2,7 +2,7 @@ import Flutter
 import Foundation
 
 /// Handles the `ai.getangler/analytics` channel by calling the Swift core (compiled into this
-/// pod from `Classes/vendor/AnglerAnalytics`). Replies `nil` to every call.
+/// pod from `Classes/vendor/AnglerAnalytics`). Replies `nil` to every call but `getClientId`.
 public class AnglerAnalyticsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "ai.getangler/analytics", binaryMessenger: registrar.messenger())
@@ -39,6 +39,9 @@ public class AnglerAnalyticsPlugin: NSObject, FlutterPlugin {
             Angler.flush()
         case "reset":
             Angler.reset()
+        case "getClientId":
+            Angler.getClientId { id in DispatchQueue.main.async { result(id) } }
+            return
         default:
             result(FlutterMethodNotImplemented)
             return

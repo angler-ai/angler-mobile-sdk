@@ -7,10 +7,10 @@ advertising IDs (IDFA/GAID), click IDs from deep links and the Play Install Refe
 
 | Platform | Package | Install | Guide |
 |---|---|---|---|
-| iOS (Swift) | `AnglerAnalytics` (Swift Package Manager) | `.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.1")` | [ios/](ios/README.md) |
-| Android (Kotlin, Java) | `ai.getangler:analytics` (Maven Central) | `implementation("ai.getangler:analytics:0.1.0-rc.1")` | [android/](android/README.md) |
+| iOS (Swift) | `AnglerAnalytics` (Swift Package Manager) | `.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.2")` | [ios/](ios/README.md) |
+| Android (Kotlin, Java) | `ai.getangler:analytics` (Maven Central) | `implementation("ai.getangler:analytics:0.1.0-rc.2")` | [android/](android/README.md) |
 | React Native | [`@anglerai/react-native-analytics`](https://www.npmjs.com/package/@anglerai/react-native-analytics) (npm) | `npm install @anglerai/react-native-analytics` | [react-native/](react-native/README.md) |
-| Flutter | [`angler_analytics`](https://pub.dev/packages/angler_analytics) (pub.dev) | `angler_analytics: ^0.1.0-rc.1` | [flutter/](flutter/README.md) |
+| Flutter | [`angler_analytics`](https://pub.dev/packages/angler_analytics) (pub.dev) | `angler_analytics: ^0.1.0-rc.2` | [flutter/](flutter/README.md) |
 
 All four share one version and behave the same way: the React Native and Flutter packages are
 thin wrappers over the Swift and Kotlin cores.
@@ -50,9 +50,12 @@ Then, in every app:
    so click IDs from ads are captured. React Native does this for you.
 2. **Track the shopping funnel** with the [standard events](#events) below.
 3. **Call `setUserId`** when the shopper logs in, and `reset` when they log out.
-4. **Ask for tracking permission on iOS** (ATT) if you want the IDFA sent. The SDK never shows
+4. **If checkout happens on the web** (for example Shopify's checkout in a web view), pass
+   `getClientId()` to it as the cart attribute `_angler_client_id`, so the order is linked to
+   the app. See your SDK's guide.
+5. **Ask for tracking permission on iOS** (ATT) if you want the IDFA sent. The SDK never shows
    the prompt itself.
-5. **Test against the dev environment** with `domain: "dev-data.getangler.ai"` and
+6. **Test against the dev environment** with `domain: "dev-data.getangler.ai"` and
    `debugLogging: true` before you ship. See [Verifying your integration](#verifying-your-integration).
 
 ## Events

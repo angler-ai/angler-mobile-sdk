@@ -2,6 +2,7 @@ package ai.getangler.analytics.reactnative
 
 import ai.getangler.analytics.Angler
 import android.util.Log
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModule
 
@@ -40,6 +41,15 @@ class AnglerAnalyticsModule(reactContext: ReactApplicationContext) : NativeAngle
     override fun flush() = guard { Angler.flush() }
 
     override fun reset() = guard { Angler.reset() }
+
+    override fun getClientId(promise: Promise) {
+        try {
+            Angler.getClientId { promise.resolve(it) }
+        } catch (t: Throwable) {
+            Log.e("Angler", "react-native call failed: $t")
+            promise.resolve(null)
+        }
+    }
 
     private inline fun guard(block: () -> Unit) {
         try {

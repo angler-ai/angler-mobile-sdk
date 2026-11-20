@@ -1,5 +1,5 @@
 PODS:
-  - AnglerAnalyticsRN (0.1.0):
+  - AnglerAnalyticsRN (0.1.0-rc.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1789,7 +1789,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AnglerAnalyticsRN: 886d50eb92c9f0b8fb91e289c44a5e27a6e67c2e
+  AnglerAnalyticsRN: a1f909dbb7902ee84de52df37f67ab050e8b5bd8
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6

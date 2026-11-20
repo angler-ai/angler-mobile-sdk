@@ -15,6 +15,7 @@ export interface Spec extends TurboModule {
   setEnabled(enabled: boolean): void;
   flush(): void;
   reset(): void;
+  getClientId(): Promise<string | null>;
 }
 
 // `get`, not `getEnforcing`: a missing native module must not throw at import time.

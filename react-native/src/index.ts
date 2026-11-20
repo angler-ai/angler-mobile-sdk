@@ -151,8 +151,30 @@ export const Angler = {
     call((n) => n.flush());
   },
 
+  /** Clears the user ID, custom identifiers and attribution, and creates a new install ID. */
   reset(): void {
     call((n) => n.reset());
+  },
+
+  /**
+   * The `client_id` events are sent with: `clientId` from `configure` if you set one, otherwise the
+   * install ID. Pass it to something the app hands off to, such as Shopify's web checkout (as a cart
+   * attribute), so Angler can link what happens there to this app. Resolves to `null` before
+   * `configure` and while `setEnabled(false)`. `reset()` creates a new install ID, so read it when
+   * you need it rather than caching it. Never rejects.
+   */
+  async getClientId(): Promise<string | null> {
+    const native = NativeAnglerAnalytics;
+    if (!native) {
+      warn('native module AnglerAnalytics is not linked; is the app rebuilt with the New Architecture?');
+      return null;
+    }
+    try {
+      return (await native.getClientId()) ?? null;
+    } catch (e) {
+      warn('getClientId failed', e);
+      return null;
+    }
   },
 };
 

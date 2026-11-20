@@ -1,5 +1,5 @@
 PODS:
-  - angler_analytics (0.1.0):
+  - angler_analytics (0.1.0-rc.2):
     - Flutter
   - app_links (6.4.1):
     - Flutter
@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  angler_analytics: b57beb80193545799b9f5cf1d720b00855ff72c7
+  angler_analytics: a18ef8032fcf799cebb5668b4e53d040afdb03c9
   app_links: 3dbc685f76b1693c66a6d9dd1e9ab6f73d97dc0a
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
 

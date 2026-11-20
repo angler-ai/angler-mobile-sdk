@@ -1,6 +1,6 @@
 name: angler_analytics
 description: Angler app analytics and attribution for Flutter (iOS and Android), over the native Angler SDKs.
-version: 0.1.0-rc.1
+version: 0.1.0-rc.2
 homepage: https://getangler.ai
 repository: https://github.com/angler-ai/angler-mobile-sdk
 

@@ -129,4 +129,20 @@ public enum Angler {
 
     /// Clears the user ID, custom identifiers and attribution, and creates a new install ID.
     public static func reset() { core.reset() }
+
+    /// The `client_id` events are sent with: `AnglerConfiguration.clientId` if you set one, otherwise
+    /// the install ID. Pass it to something the app hands off to, such as a web checkout (as a cart
+    /// attribute), so Angler can link what happens there to this app. Nil before `configure` and
+    /// while `setEnabled(false)`. `reset()` creates a new install ID, so read it when you need it
+    /// rather than caching it. `completion` runs on a background queue.
+    public static func getClientId(completion: @escaping (String?) -> Void) {
+        core.getClientId(completion: completion)
+    }
+
+    /// The `client_id` events are sent with; see `getClientId(completion:)`.
+    public static func getClientId() async -> String? {
+        await withCheckedContinuation { continuation in
+            core.getClientId { continuation.resume(returning: $0) }
+        }
+    }
 }

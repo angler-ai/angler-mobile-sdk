@@ -15,7 +15,7 @@ nothing.
 
 ```yaml
 dependencies:
-  angler_analytics: ^0.1.0-rc.1
+  angler_analytics: ^0.1.0-rc.2
 ```
 
 iOS compiles the Swift core from source inside the plugin, and Android pulls
@@ -128,6 +128,24 @@ await Angler.flush();                                  // send the queue now
   remove it with `tools:node="remove"` in `AndroidManifest.xml`.
 - **Firebase:** if the app uses Firebase Analytics (`firebase_analytics`), its app instance ID is
   sent as `firebase_app_instance_id`. Nothing to configure.
+
+## Web checkout
+
+If checkout happens on the web (for example Shopify's checkout in a web view), pass the
+client ID to it, so Angler can link the order to this app. On Shopify, add it as a cart
+attribute named `_angler_client_id`:
+
+```dart
+final clientId = await Angler.getClientId();
+if (clientId != null) {
+  // Storefront API: `attributes` on cartCreate, or cartAttributesUpdate
+  attributes.add({'key': '_angler_client_id', 'value': clientId});
+}
+```
+
+It's the `client_id` every event carries: `clientId` from `configure` if you set one, otherwise
+the install ID. It's null before `configure` and while `setEnabled(false)`. Read it when
+checkout opens rather than caching it: `reset()` creates a new install ID.
 
 ## Check it works
 

@@ -132,6 +132,24 @@ Angler.flush();                                 // send the queue now
 - **Firebase:** if the app uses Firebase Analytics (for example `@react-native-firebase/analytics`),
   its app instance ID is sent as `firebase_app_instance_id`. Nothing to configure.
 
+## Web checkout
+
+If checkout happens on the web (for example Shopify's checkout in a web view), pass the
+client ID to it, so Angler can link the order to this app. On Shopify, add it as a cart
+attribute named `_angler_client_id`:
+
+```ts
+const clientId = await Angler.getClientId();
+if (clientId) {
+  // Storefront API: `attributes` on cartCreate, or cartAttributesUpdate
+  attributes.push({ key: '_angler_client_id', value: clientId });
+}
+```
+
+It's the `client_id` every event carries: `clientId` from `configure` if you set one, otherwise
+the install ID. It's null before `configure` and while `setEnabled(false)`. Read it when
+checkout opens rather than caching it: `reset()` creates a new install ID.
+
 ## Check it works
 
 Set `domain: 'dev-data.getangler.ai'` and `debugLogging: true`, then watch the native logs:

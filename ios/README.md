@@ -13,7 +13,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.1")
+.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.2")
 ```
 
 Release candidates need an exact version; from `0.1.0` on, `from: "0.1.0"` works.
@@ -119,6 +119,26 @@ Angler.flush()                                        // send the queue now
 - **Privacy manifest:** the package ships `PrivacyInfo.xcprivacy`, which Xcode merges into
   your app's privacy report. It lists the data types the SDK collects; include them in your App
   Store privacy details.
+
+## Web checkout
+
+If checkout happens on the web (for example Shopify's checkout in a web view), pass the
+client ID to it, so Angler can link the order to this app. On Shopify, add it as a cart
+attribute named `_angler_client_id`:
+
+```swift
+if let clientId = await Angler.getClientId() {
+    // Storefront API: `attributes` on cartCreate, or cartAttributesUpdate
+    attributes.append(AttributeInput(key: "_angler_client_id", value: clientId))
+}
+```
+
+`Angler.getClientId { clientId in … }` does the same with a completion handler, which runs on a
+background queue.
+
+It's the `client_id` every event carries: `clientId` from `configure` if you set one, otherwise
+the install ID. It's null before `configure` and while `setEnabled(false)`. Read it when
+checkout opens rather than caching it: `reset()` creates a new install ID.
 
 ## Check it works
 
