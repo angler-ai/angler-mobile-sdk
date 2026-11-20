@@ -88,6 +88,46 @@
         "rdt_cid": "8",
         "epik": "9"
       }
+    },
+    {
+      "name": "browser_ids",
+      "input": "myapp://product/42?fbp=fb.1.1700000000000.123456789&ga=GA1.1.111.222&ttp=tt-abc&scid=sc-1&pin_unauth=pu-1&rdt_uuid=ru-1",
+      "expected": {
+        "fbp": "fb.1.1700000000000.123456789",
+        "ga": "GA1.1.111.222",
+        "ttp": "tt-abc",
+        "scid": "sc-1",
+        "pin_unauth": "pu-1",
+        "rdt_uuid": "ru-1"
+      }
+    },
+    {
+      "name": "leading_underscore_dropped",
+      "input": "https://shop.example.com/app?_fbp=fb.1.1.2&_ga=GA1.1.3.4&_fbclid=f1",
+      "expected": {
+        "fbp": "fb.1.1.2",
+        "ga": "GA1.1.3.4",
+        "fbclid": "f1"
+      }
+    },
+    {
+      "name": "underscore_and_plain_first_wins",
+      "input": "https://x.com/?_fbp=first&fbp=second",
+      "expected": {
+        "fbp": "first"
+      }
+    },
+    {
+      "name": "only_one_underscore_dropped",
+      "input": "https://x.com/?__fbp=no&_utm_source=no",
+      "expected": {}
+    },
+    {
+      "name": "fbc_passed_through",
+      "input": "https://x.com/?_fbc=fb.1.1700000000000.IwAR0abc",
+      "expected": {
+        "fbc": "fb.1.1700000000000.IwAR0abc"
+      }
     }
   ]
 }

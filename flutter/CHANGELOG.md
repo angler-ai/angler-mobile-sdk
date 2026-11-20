@@ -1,3 +1,9 @@
+## 0.1.0-rc.4
+
+- Deep links can carry browser IDs (`fbp`, `fbc`, `ga`, `ttp`, `scid`, `pin_unauth`,
+  `rdt_uuid`) so app events can be tied to the web visitor. Like click IDs, they're stored and
+  sent on every later event. Parameter names may start with `_` (`_fbp`), as the cookies do.
+
 ## 0.1.0-rc.3
 
 - No changes to the Flutter package. Released so the React Native package, which failed to

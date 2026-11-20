@@ -21,22 +21,33 @@ internal class AttributionStore(private val store: KeyValueStore, private val cl
     private data class FbcEntry(val value: String, val fbclid: String, val capturedAtMs: Long)
 
     /**
-     * Stores each non-empty click ID with a fresh 400-day expiry, derives `fbc` from `fbclid`,
-     * and sets the session URL when [url] is non-null.
+     * Stores each non-empty ID with a fresh 400-day expiry and sets the session URL when [url]
+     * is non-null. A valid `fbc` (the browser's `_fbc` cookie) becomes the `fbc` sent, and its
+     * `fbclid` is stored with it; otherwise `fbc` is derived from a new `fbclid`.
      */
     fun capture(clickIds: Map<String, String>, url: String?) {
         val now = clock.nowMillis()
         val entries = liveEntries(now).toMutableMap()
-        for ((name, value) in clickIds) if (value.isNotEmpty()) entries[name] = Entry(value, now)
+        for ((name, value) in clickIds) if (value.isNotEmpty() && name != "fbc") entries[name] = Entry(value, now)
+        val linkFbc = clickIds["fbc"]?.let { fbc -> fbclidInFbc(fbc)?.let { FbcEntry(fbc, it, now) } }
+        if (linkFbc != null) entries["fbclid"] = Entry(linkFbc.fbclid, now)
         writeEntries(entries)
         val fbclid = clickIds["fbclid"]
-        if (!fbclid.isNullOrEmpty() && readFbc()?.fbclid != fbclid) {
+        if (linkFbc != null) {
+            writeFbc(linkFbc)
+        } else if (!fbclid.isNullOrEmpty() && readFbc()?.fbclid != fbclid) {
             writeFbc(FbcEntry("fb.1.$now.$fbclid", fbclid, now))
         }
         if (!url.isNullOrEmpty()) {
             store.putString(KEY_SESSION_URL, url)
             store.putString(KEY_SESSION_URL_AT, now.toString())
         }
+    }
+
+    /** The fbclid in an `fbc` value (`fb.<subdomain index>.<creation ms>.<fbclid>`), or null if it isn't in that form. */
+    fun fbclidInFbc(fbc: String): String? {
+        val parts = fbc.split('.', limit = 4)
+        return if (parts.size == 4 && parts[0] == "fb" && parts[3].isNotEmpty()) parts[3] else null
     }
 
     fun snapshot(): AttributionSnapshot {

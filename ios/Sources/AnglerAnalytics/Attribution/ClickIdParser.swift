@@ -1,9 +1,11 @@
 import Foundation
 
-/// URL or query string → click-ID map (design §6.1). Takes strings rather than `URL`
-/// because Foundation may reject or rewrite invalid percent-encoding.
+/// URL or query string → identifier map (design §6.1): ad click IDs, plus the browser IDs a
+/// website can pass to the app in a link (its `_fbp`, `_ga` … cookies), so app events can be
+/// tied to the web visitor. Takes strings rather than `URL` because Foundation may reject or
+/// rewrite invalid percent-encoding.
 enum ClickIdParser {
-    /// Query parameter (case-sensitive) → identifier name.
+    /// Query parameter (case-sensitive, after one leading `_` is dropped) → identifier name.
     static let identifierByParameter: [String: String] = [
         "gclid": "gclid",
         "gbraid": "gbraid",
@@ -14,6 +16,14 @@ enum ClickIdParser {
         "ScCid": "sccid",
         "rdt_cid": "rdt_cid",
         "epik": "epik",
+        // Browser IDs, named as the web SDKs send them.
+        "fbp": "fbp",
+        "fbc": "fbc",
+        "ga": "ga",
+        "ttp": "ttp",
+        "scid": "scid",
+        "pin_unauth": "pin_unauth",
+        "rdt_uuid": "rdt_uuid",
     ]
 
     /// The query is the text after the first `?` and before any `#`. Any scheme works.
@@ -25,8 +35,8 @@ enum ClickIdParser {
     }
 
     /// Splits on `&`, then each pair at the first `=`. Percent-decodes name and value
-    /// (`+` stays `+`). Empty values and invalid encodings are skipped; the first
-    /// remaining occurrence of a parameter wins.
+    /// (`+` stays `+`) and drops one leading `_` from the name, so `_fbp` is `fbp`. Empty
+    /// values and invalid encodings are skipped; the first remaining occurrence wins.
     static func parse(query: String) -> [String: String] {
         var result: [String: String] = [:]
         for pair in query.split(separator: "&", omittingEmptySubsequences: true) {
@@ -39,8 +49,8 @@ enum ClickIdParser {
                 rawName = pair
                 rawValue = ""
             }
-            guard let name = rawName.removingPercentEncoding,
-                  let id = identifierByParameter[name],
+            guard let decoded = rawName.removingPercentEncoding,
+                  let id = identifierByParameter[decoded.hasPrefix("_") ? String(decoded.dropFirst()) : decoded],
                   result[id] == nil,
                   let value = rawValue.removingPercentEncoding,
                   !value.isEmpty

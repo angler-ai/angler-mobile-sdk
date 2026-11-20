@@ -15,7 +15,7 @@ nothing.
 
 ```yaml
 dependencies:
-  angler_analytics: ^0.1.0-rc.3
+  angler_analytics: ^0.1.0-rc.4
 ```
 
 iOS compiles the Swift core from source inside the plugin, and Android pulls

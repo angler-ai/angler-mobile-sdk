@@ -8,7 +8,7 @@ final class ClickIdParserTests: XCTestCase {
 
     func testDeeplinkFixtures() throws {
         let cases = try Fixtures.load("deeplinks")
-        XCTAssertEqual(cases.count, 12)
+        XCTAssertEqual(cases.count, 17)
         for c in cases {
             XCTAssertEqual(ClickIdParser.parse(url: c.input.stringValue!), stringMap(c.expected), c.name)
         }
@@ -16,7 +16,7 @@ final class ClickIdParserTests: XCTestCase {
 
     func testInstallReferrerFixtures() throws {
         let cases = try Fixtures.load("install-referrer")
-        XCTAssertEqual(cases.count, 4)
+        XCTAssertEqual(cases.count, 5)
         for c in cases {
             XCTAssertEqual(ClickIdParser.parse(query: c.input.stringValue!), stringMap(c.expected), c.name)
         }

@@ -583,6 +583,29 @@ final class AnglerCoreTests: XCTestCase {
         XCTAssertNil(core.queuedBodies().last?["url"])
         XCTAssertEqual(identifiers(core.queuedBodies().last!)["gclid"], "g1", "click IDs outlive the session")
     }
+
+    func testBrowserIdsFromALinkAreSentOnEveryLaterEvent() throws {
+        transport.defaultStatus = nil
+        let core = makeCore()
+        core.configure(config(lifecycle: true))
+        foreground()
+        core.handleDeepLink(urlString: "myapp://p/1?_fbp=fb.1.1700000000000.42&_ga=GA1.1.3.4&_fbc=fb.1.1700000000000.IwAR0abc")
+        core.track("product_viewed")
+        core.waitUntilIdle()
+        background()
+        core.waitUntilIdle()
+        clock.date = clock.date.addingTimeInterval(7 * 86_400)
+        foreground()
+        core.track("product_viewed")
+        let e = try XCTUnwrap(core.queuedBodies().last)
+        XCTAssertNil(e["url"], "a new session")
+        let ids = identifiers(e)
+        XCTAssertEqual(ids["fbp"], "fb.1.1700000000000.42")
+        XCTAssertEqual(ids["ga"], "GA1.1.3.4")
+        XCTAssertEqual(ids["fbclid"], "IwAR0abc")
+        XCTAssertNil(ids["fbc"])
+        XCTAssertEqual(e["fbc"], .string("fb.1.1700000000000.IwAR0abc"))
+    }
 }
 
 final class FakeAdIds: AdIdProviding {

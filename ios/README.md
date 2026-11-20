@@ -13,7 +13,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.3")
+.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.4")
 ```
 
 Release candidates need an exact version; from `0.1.0` on, `from: "0.1.0"` works.

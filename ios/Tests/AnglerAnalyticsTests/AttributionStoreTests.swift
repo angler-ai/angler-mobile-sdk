@@ -37,6 +37,33 @@ final class AttributionStoreTests: XCTestCase {
         XCTAssertEqual(a.snapshot().fbc, "fb.1.1763402705123.f2")
     }
 
+    func testLinkFbcIsSentAsIsWithItsFbclid() {
+        let clock = FixedClock(date: t0)
+        let a = AttributionStore(store: InMemoryStore(), clock: clock)
+        a.capture(clickIds: ["fbc": "fb.1.1700000000000.IwAR0abc", "fbp": "fb.1.1.2"], url: nil)
+        XCTAssertEqual(a.snapshot().fbc, "fb.1.1700000000000.IwAR0abc")
+        XCTAssertEqual(a.snapshot().clickIds, ["fbclid": "IwAR0abc", "fbp": "fb.1.1.2"], "fbc is sent as fbc, not an identifier")
+        clock.date = t0.addingTimeInterval(60)
+        a.capture(clickIds: ["fbclid": "IwAR0abc"], url: nil)
+        XCTAssertEqual(a.snapshot().fbc, "fb.1.1700000000000.IwAR0abc", "the same click keeps the browser's fbc")
+    }
+
+    func testLinkFbcWinsOverFbclidInTheSameLink() {
+        let a = AttributionStore(store: InMemoryStore(), clock: FixedClock(date: t0))
+        a.capture(clickIds: ["fbclid": "other", "fbc": "fb.1.1700000000000.IwAR0abc"], url: nil)
+        XCTAssertEqual(a.snapshot().fbc, "fb.1.1700000000000.IwAR0abc")
+        XCTAssertEqual(a.snapshot().clickIds, ["fbclid": "IwAR0abc"])
+    }
+
+    func testMalformedLinkFbcIsIgnored() {
+        let a = AttributionStore(store: InMemoryStore(), clock: FixedClock(date: t0))
+        a.capture(clickIds: ["fbc": "not-an-fbc", "fbclid": "f1"], url: nil)
+        XCTAssertEqual(a.snapshot().fbc, "fb.1.1763402645123.f1")
+        XCTAssertEqual(a.snapshot().clickIds, ["fbclid": "f1"])
+        XCTAssertNil(AttributionStore.fbclid(inFbc: "fb.1.2."))
+        XCTAssertEqual(AttributionStore.fbclid(inFbc: "fb.1.2.a.b"), "a.b")
+    }
+
     func testFbcExpiresWithFbclid() {
         let s = InMemoryStore()
         let clock = FixedClock(date: t0)

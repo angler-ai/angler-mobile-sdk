@@ -7,10 +7,10 @@ advertising IDs (IDFA/GAID), click IDs from deep links and the Play Install Refe
 
 | Platform | Package | Install | Guide |
 |---|---|---|---|
-| iOS (Swift) | `AnglerAnalytics` (Swift Package Manager) | `.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.3")` | [ios/](ios/README.md) |
-| Android (Kotlin, Java) | `ai.getangler:analytics` (Maven Central) | `implementation("ai.getangler:analytics:0.1.0-rc.3")` | [android/](android/README.md) |
+| iOS (Swift) | `AnglerAnalytics` (Swift Package Manager) | `.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.4")` | [ios/](ios/README.md) |
+| Android (Kotlin, Java) | `ai.getangler:analytics` (Maven Central) | `implementation("ai.getangler:analytics:0.1.0-rc.4")` | [android/](android/README.md) |
 | React Native | [`@anglerai/react-native-analytics`](https://www.npmjs.com/package/@anglerai/react-native-analytics) (npm) | `npm install @anglerai/react-native-analytics` | [react-native/](react-native/README.md) |
-| Flutter | [`angler_analytics`](https://pub.dev/packages/angler_analytics) (pub.dev) | `angler_analytics: ^0.1.0-rc.3` | [flutter/](flutter/README.md) |
+| Flutter | [`angler_analytics`](https://pub.dev/packages/angler_analytics) (pub.dev) | `angler_analytics: ^0.1.0-rc.4` | [flutter/](flutter/README.md) |
 
 All four share one version and behave the same way: the React Native and Flutter packages are
 thin wrappers over the Swift and Kotlin cores.
@@ -108,10 +108,20 @@ in Swift, Kotlin, TypeScript, Dart and JSON.
 | `gaid` | Android advertising ID. | Unless the user opted out of ad personalization, Play services are missing, or the app removed the `AD_ID` permission. |
 | `firebase_app_instance_id` | Firebase Analytics' app instance ID. | When the app uses Firebase Analytics. Nothing to install. |
 | `gclid`, `gbraid`, `wbraid`, `gad_source`, `fbclid`, `ttclid`, `sccid`, `rdt_cid`, `epik` | Click IDs from ad links. | After a deep link (or Play Install Referrer) carrying them. Kept 400 days. |
+| `fbp`, `ga`, `ttp`, `scid`, `pin_unauth`, `rdt_uuid` | Browser IDs your website passes to the app in a link (see below). | After a deep link carrying them. Kept 400 days. |
 | anything else | Your values from `setIdentifier(name, value)`. | After you set them. |
 
 When a `fbclid` arrives, the SDK also sends Meta's `fbc` value. The deep link itself is sent as
-`url` on every event until the app spends 30 minutes in the background.
+`url` on every event until the app spends 30 minutes in the background. Click IDs and browser IDs
+are stored and sent on every event after that too, until they expire, a newer link replaces them,
+or `reset()` clears them.
+
+**Linking web visitors to the app.** When your website links into the app (an "Open in app"
+button or banner), add the visitor's browser IDs to the link, named after their cookies:
+`myapp://product/42?_fbp=<_fbp cookie>&_fbc=<_fbc cookie>&_ga=<_ga cookie>`. Parameter names are
+case-sensitive, and one leading `_` is optional (`_fbp` and `fbp` both work). A valid `_fbc` is
+sent as the `fbc` value as-is. This only works when the app is already installed: a link that
+goes to the App Store or Play first loses its parameters.
 
 **Device properties** (sent in `device_properties`): app package and version, App Store ID or
 package name (`app_id`), OS and version, device model, time zone, locale, screen size and

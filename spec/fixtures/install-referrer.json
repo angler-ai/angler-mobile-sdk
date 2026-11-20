@@ -24,6 +24,13 @@
       "name": "empty",
       "input": "",
       "expected": {}
+    },
+    {
+      "name": "browser_id_from_web",
+      "input": "utm_source=web&_fbp=fb.1.1700000000000.42",
+      "expected": {
+        "fbp": "fb.1.1700000000000.42"
+      }
     }
   ]
 }
