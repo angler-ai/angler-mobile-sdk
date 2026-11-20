@@ -75,6 +75,13 @@ propertiesJson:(NSString *_Nullable)propertiesJson
   [AnglerAnalyticsBridge reset];
 }
 
+- (void)getClientId:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+{
+  [AnglerAnalyticsBridge getClientId:^(NSString *_Nullable clientId) {
+    resolve(clientId);
+  }];
+}
+
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
 {

@@ -384,6 +384,54 @@ class AnglerCoreTest {
         assertEquals(1, names(core).count { it == "app_installed" })
     }
 
+    // client ID
+
+    private fun clientId(core: AnglerCore): String? {
+        val result = java.util.concurrent.CompletableFuture<String?>()
+        core.getClientId { result.complete(it) }
+        return result.get(5, java.util.concurrent.TimeUnit.SECONDS)
+    }
+
+    @Test fun clientIdIsNullBeforeConfigure() {
+        transport.defaultStatus = null
+        val core = makeCore()
+        assertNull(clientId(core))
+        core.configure(config(lifecycle = true))
+        core.waitUntilIdle()
+        referrer.answer(null)
+        assertEquals("asking first doesn't use up the install event", listOf("app_installed"), names(core))
+    }
+
+    @Test fun clientIdIsTheInstallIdEventsCarry() {
+        transport.defaultStatus = null
+        val core = makeCore()
+        core.configure(config())
+        core.track("product_viewed")
+        val e = core.queuedBodies().last()
+        val sent = e["client_id"]!!.str!!
+        assertEquals(sent, clientId(core))
+        assertEquals(sent, ids(e)["aid"])
+    }
+
+    @Test fun clientIdPrefersTheConfiguredOverride() {
+        val core = makeCore()
+        core.configure(config(clientId = "crm-1"))
+        assertEquals("crm-1", clientId(core))
+    }
+
+    @Test fun clientIdChangesOnResetAndIsNullWhileDisabled() {
+        val core = makeCore()
+        core.configure(config())
+        val before = clientId(core)!!
+        core.reset()
+        val after = clientId(core)!!
+        assertNotEquals(before, after)
+        core.setEnabled(false)
+        assertNull(clientId(core))
+        core.setEnabled(true)
+        assertEquals(after, clientId(core))
+    }
+
     // delivery
 
     @Test fun newCoreSameDirectorySendsOldEvents() {

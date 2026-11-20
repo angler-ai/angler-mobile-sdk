@@ -78,6 +78,24 @@ void main() {
     ]);
   });
 
+  test('getClientId returns the native client ID', () async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      return 'aid-1';
+    });
+    expect(await Angler.getClientId(), 'aid-1');
+    expect(calls.single.method, 'getClientId');
+  });
+
+  test('getClientId returns null when the call fails', () async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      throw PlatformException(code: 'boom');
+    });
+    expect(await Angler.getClientId(), isNull);
+    messenger.setMockMethodCallHandler(channel, null);
+    expect(await Angler.getClientId(), isNull);
+  });
+
   test('PlatformException is swallowed', () async {
     messenger.setMockMethodCallHandler(channel, (call) async {
       throw PlatformException(code: 'boom');

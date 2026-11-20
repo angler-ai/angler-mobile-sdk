@@ -80,6 +80,22 @@ class Angler {
   /// Clears the user ID, custom identifiers and attribution, and creates a new install ID.
   static Future<void> reset() => _invoke('reset');
 
+  /// The `client_id` events are sent with: `clientId` from [configure] if you set one, otherwise
+  /// the install ID. Pass it to something the app hands off to, such as a web checkout (as a cart
+  /// attribute), so Angler can link what happens there to this app. Null before [configure],
+  /// while `setEnabled(false)`, and if the call fails. [reset] creates a new install ID, so read
+  /// it when you need it rather than caching it.
+  static Future<String?> getClientId() async {
+    try {
+      return await _channel.invokeMethod<String>('getClientId');
+    } on MissingPluginException {
+      debugPrint('[Angler] getClientId: no native plugin on this platform; returning null');
+    } catch (e) {
+      debugPrint('[Angler] getClientId failed: $e');
+    }
+    return null;
+  }
+
   static String? _encode(Object value, String what) {
     try {
       return jsonEncode(value);

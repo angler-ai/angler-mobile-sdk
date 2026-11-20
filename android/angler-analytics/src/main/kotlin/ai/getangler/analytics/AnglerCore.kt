@@ -132,6 +132,18 @@ internal class AnglerCore(
         attribution.clear()
     }
 
+    /**
+     * Calls [callback] on the executor with the `client_id` events carry: the configured
+     * `clientId`, else the install ID. Null before [configure] has run and while disabled.
+     */
+    fun getClientId(callback: (String?) -> Unit) = post {
+        val config = configuration
+        callback(
+            if (config == null || !identity.isEnabled) null
+            else config.clientId?.takeIf { it.isNotEmpty() } ?: identity.ensureAid().first
+        )
+    }
+
     // MARK: on the executor
 
     private fun doConfigure(config: AnglerConfiguration) {

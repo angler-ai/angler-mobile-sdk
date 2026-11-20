@@ -2,15 +2,18 @@ package ai.getangler.analytics.flutter
 
 import ai.getangler.analytics.Angler
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-/** Handles the `ai.getangler/analytics` channel by calling the Kotlin core. Replies null to every call. */
+/** Handles the `ai.getangler/analytics` channel by calling the Kotlin core. Replies null to every call but `getClientId`. */
 class AnglerAnalyticsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var channel: MethodChannel? = null
     private var context: Context? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
@@ -44,6 +47,19 @@ class AnglerAnalyticsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 "setEnabled" -> (args["enabled"] as? Boolean)?.let { Angler.setEnabled(it) }
                 "flush" -> Angler.flush()
                 "reset" -> Angler.reset()
+                "getClientId" -> {
+                    // Channel replies go on the main thread; the core answers on its own.
+                    Angler.getClientId { id ->
+                        mainHandler.post {
+                            try {
+                                result.success(id)
+                            } catch (t: Throwable) {
+                                Log.e("Angler", "getClientId reply failed: $t")
+                            }
+                        }
+                    }
+                    return
+                }
                 else -> return result.notImplemented()
             }
         } catch (t: Throwable) {

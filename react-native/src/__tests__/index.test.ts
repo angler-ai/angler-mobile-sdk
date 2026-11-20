@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type NativeMock = Record<
   'configure' | 'track' | 'handleDeepLink' | 'setUserId' | 'setIdentifier' |
-  'setApplicationTrackingEnabled' | 'setEnabled' | 'flush' | 'reset',
+  'setApplicationTrackingEnabled' | 'setEnabled' | 'flush' | 'reset' | 'getClientId',
   jest.Mock
 >;
 
@@ -19,7 +19,7 @@ beforeEach(() => {
   native = {
     configure: jest.fn(), track: jest.fn(), handleDeepLink: jest.fn(), setUserId: jest.fn(),
     setIdentifier: jest.fn(), setApplicationTrackingEnabled: jest.fn(), setEnabled: jest.fn(),
-    flush: jest.fn(), reset: jest.fn(),
+    flush: jest.fn(), reset: jest.fn(), getClientId: jest.fn(() => Promise.resolve('aid-1')),
   };
   Linking = {
     getInitialURL: jest.fn(() => Promise.resolve(null)),
@@ -133,4 +133,33 @@ test('missing native module never throws', () => {
     A.track('x');
     A.flush();
   }).not.toThrow();
+});
+
+test('getClientId resolves the native client ID', async () => {
+  await expect(Angler.getClientId()).resolves.toBe('aid-1');
+});
+
+test('getClientId resolves null when native has none or fails', async () => {
+  native.getClientId.mockReturnValueOnce(Promise.resolve(undefined));
+  await expect(Angler.getClientId()).resolves.toBeNull();
+  native.getClientId.mockReturnValueOnce(Promise.reject(new Error('boom')));
+  await expect(Angler.getClientId()).resolves.toBeNull();
+  native.getClientId.mockImplementationOnce(() => {
+    throw new Error('sync boom');
+  });
+  await expect(Angler.getClientId()).resolves.toBeNull();
+});
+
+test('getClientId resolves null when the native build predates it', async () => {
+  delete (native as Partial<NativeMock>).getClientId;
+  await expect(Angler.getClientId()).resolves.toBeNull();
+  expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('not in this native build'), '');
+});
+
+test('getClientId resolves null when the native module is not linked', async () => {
+  jest.resetModules();
+  jest.doMock('../NativeAnglerAnalytics', () => ({ __esModule: true, default: null }));
+  jest.doMock('react-native', () => ({ Linking }));
+  const unlinked = require('../index').Angler as typeof Angler;
+  await expect(unlinked.getClientId()).resolves.toBeNull();
 });

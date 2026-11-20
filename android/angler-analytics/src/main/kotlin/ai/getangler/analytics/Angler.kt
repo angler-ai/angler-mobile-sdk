@@ -16,6 +16,8 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * The Angler app SDK. Every method is safe to call from any thread and never throws. Parameters
@@ -135,6 +137,39 @@ object Angler {
     /** Clears the user ID, custom identifiers and attribution, and creates a new install ID. */
     @JvmStatic
     fun reset() = withCore { it.reset() }
+
+    /**
+     * The `client_id` events are sent with: [AnglerConfiguration.clientId] if you set one, otherwise
+     * the install ID. Pass it to something the app hands off to, such as a web checkout (as a cart
+     * attribute), so Angler can link what happens there to this app. Null before [configure] and
+     * while `setEnabled(false)`. [reset] creates a new install ID, so read it when you need it
+     * rather than caching it. [callback] runs on a background thread.
+     */
+    @JvmStatic
+    fun getClientId(callback: ClientIdCallback?) {
+        if (callback == null) return Log.warning("getClientId: callback is null; ignored")
+        val c = synchronized(lock) { core }
+        if (c == null) {
+            try {
+                callback.onClientId(null)
+            } catch (t: Throwable) {
+                Log.error("getClientId callback failed: $t")
+            }
+            return
+        }
+        c.getClientId { id ->
+            try {
+                callback.onClientId(id)
+            } catch (t: Throwable) {
+                Log.error("getClientId callback failed: $t")
+            }
+        }
+    }
+
+    /** The `client_id` events are sent with; see the callback form of [getClientId]. */
+    suspend fun getClientId(): String? = suspendCoroutine { continuation ->
+        getClientId { continuation.resume(it) }
+    }
 
     private fun withCore(op: (AnglerCore) -> Unit) {
         val c = synchronized(lock) {

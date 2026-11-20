@@ -12,7 +12,7 @@ The library is on Maven Central:
 
 ```kotlin
 dependencies {
-    implementation("ai.getangler:analytics:0.1.0-rc.1")
+    implementation("ai.getangler:analytics:0.1.0-rc.2")
 }
 ```
 
@@ -130,6 +130,25 @@ Angler.flush()                                    // send the queue now
 - **Play data safety:** declare the data types listed in the
   [main README](../README.md#what-the-sdk-collects) (device IDs, app interactions) in your Play
   Console data safety form.
+
+## Web checkout
+
+If checkout happens on the web (for example Shopify's checkout in a web view), pass the
+client ID to it, so Angler can link the order to this app. On Shopify, add it as a cart
+attribute named `_angler_client_id`:
+
+```kotlin
+Angler.getClientId { clientId ->                  // runs on a background thread
+    // Storefront API: `attributes` on cartCreate, or cartAttributesUpdate
+    if (clientId != null) attributes += AttributeInput("_angler_client_id", clientId)
+}
+```
+
+From a coroutine, `val clientId = Angler.getClientId()` does the same.
+
+It's the `client_id` every event carries: `clientId` from `configure` if you set one, otherwise
+the install ID. It's null before `configure` and while `setEnabled(false)`. Read it when
+checkout opens rather than caching it: `reset()` creates a new install ID.
 
 ## Check it works
 

@@ -32,6 +32,10 @@ public final class AnglerAnalyticsBridge: NSObject {
 
     @objc public static func reset() { Angler.reset() }
 
+    @objc public static func getClientId(_ completion: @escaping (String?) -> Void) {
+        Angler.getClientId(completion: completion)
+    }
+
     /// JSON from `src/index.ts` → configuration with `wrapper = "react-native"`. Nil if invalid.
     static func parseConfiguration(_ json: String) -> AnglerConfiguration? {
         guard let o = jsonObject(json) as? [String: Any],
