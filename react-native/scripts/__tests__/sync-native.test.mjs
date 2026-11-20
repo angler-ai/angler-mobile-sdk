@@ -70,3 +70,10 @@ test('npm pack includes the vendored Swift core and excludes tests', () => {
   assert.ok(files.includes('src/index.ts'));
   assert.ok(!files.some((f) => f.includes('__tests__')), 'tests must not ship');
 });
+
+// npm rejects a --provenance publish unless repository.url matches the repo that built it.
+test('package.json names the GitHub repository, as npm provenance requires', () => {
+  const pkg = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
+  assert.equal(pkg.repository?.url, 'git+https://github.com/angler-ai/angler-mobile-sdk.git');
+  assert.equal(pkg.repository?.directory, 'react-native');
+});

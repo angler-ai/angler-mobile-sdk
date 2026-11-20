@@ -1,8 +1,15 @@
 {
   "name": "@anglerai/react-native-analytics",
-  "version": "0.1.0-rc.2",
+  "version": "0.1.0-rc.3",
   "description": "Angler app analytics and attribution for React Native (iOS and Android).",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angler-ai/angler-mobile-sdk.git",
+    "directory": "react-native"
+  },
+  "homepage": "https://github.com/angler-ai/angler-mobile-sdk/tree/main/react-native#readme",
+  "bugs": "https://github.com/angler-ai/angler-mobile-sdk/issues",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "react-native": "src/index.ts",

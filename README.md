@@ -7,10 +7,10 @@ advertising IDs (IDFA/GAID), click IDs from deep links and the Play Install Refe
 
 | Platform | Package | Install | Guide |
 |---|---|---|---|
-| iOS (Swift) | `AnglerAnalytics` (Swift Package Manager) | `.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.2")` | [ios/](ios/README.md) |
-| Android (Kotlin, Java) | `ai.getangler:analytics` (Maven Central) | `implementation("ai.getangler:analytics:0.1.0-rc.2")` | [android/](android/README.md) |
+| iOS (Swift) | `AnglerAnalytics` (Swift Package Manager) | `.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "0.1.0-rc.3")` | [ios/](ios/README.md) |
+| Android (Kotlin, Java) | `ai.getangler:analytics` (Maven Central) | `implementation("ai.getangler:analytics:0.1.0-rc.3")` | [android/](android/README.md) |
 | React Native | [`@anglerai/react-native-analytics`](https://www.npmjs.com/package/@anglerai/react-native-analytics) (npm) | `npm install @anglerai/react-native-analytics` | [react-native/](react-native/README.md) |
-| Flutter | [`angler_analytics`](https://pub.dev/packages/angler_analytics) (pub.dev) | `angler_analytics: ^0.1.0-rc.2` | [flutter/](flutter/README.md) |
+| Flutter | [`angler_analytics`](https://pub.dev/packages/angler_analytics) (pub.dev) | `angler_analytics: ^0.1.0-rc.3` | [flutter/](flutter/README.md) |
 
 All four share one version and behave the same way: the React Native and Flutter packages are
 thin wrappers over the Swift and Kotlin cores.
