@@ -7,13 +7,13 @@ import org.junit.Test
 class ClickIdParserTest {
     @Test fun deeplinkFixtures() {
         val cases = Fixtures.load("deeplinks")
-        assertEquals(12, cases.size)
+        assertEquals(17, cases.size)
         for (c in cases) assertEquals(c.name, c.expected.stringMap(), ClickIdParser.parseUrl(c.input.str!!))
     }
 
     @Test fun installReferrerFixtures() {
         val cases = Fixtures.load("install-referrer")
-        assertEquals(4, cases.size)
+        assertEquals(5, cases.size)
         for (c in cases) assertEquals(c.name, c.expected.stringMap(), ClickIdParser.parseQuery(c.input.str!!))
     }
 

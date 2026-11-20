@@ -6,11 +6,13 @@ import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 
 /**
- * URL or query string → click-ID map (design §6.1). Takes strings rather than
- * `android.net.Uri` so it runs in plain JVM tests and never rewrites invalid encoding.
+ * URL or query string → identifier map (design §6.1): ad click IDs, plus the browser IDs a
+ * website can pass to the app in a link (its `_fbp`, `_ga` … cookies), so app events can be tied
+ * to the web visitor. Takes strings rather than `android.net.Uri` so it runs in plain JVM tests
+ * and never rewrites invalid encoding.
  */
 internal object ClickIdParser {
-    /** Query parameter (case-sensitive) → identifier name. */
+    /** Query parameter (case-sensitive, after one leading `_` is dropped) → identifier name. */
     val identifierByParameter: Map<String, String> = mapOf(
         "gclid" to "gclid",
         "gbraid" to "gbraid",
@@ -21,6 +23,14 @@ internal object ClickIdParser {
         "ScCid" to "sccid",
         "rdt_cid" to "rdt_cid",
         "epik" to "epik",
+        // Browser IDs, named as the web SDKs send them.
+        "fbp" to "fbp",
+        "fbc" to "fbc",
+        "ga" to "ga",
+        "ttp" to "ttp",
+        "scid" to "scid",
+        "pin_unauth" to "pin_unauth",
+        "rdt_uuid" to "rdt_uuid",
     )
 
     /** The query is the text after the first `?` and before any `#`. Any scheme works. */
@@ -35,8 +45,8 @@ internal object ClickIdParser {
 
     /**
      * Splits on `&`, then each pair at the first `=`. Percent-decodes name and value (`+`
-     * stays `+`). Empty values and invalid encodings are skipped; the first remaining
-     * occurrence of a parameter wins.
+     * stays `+`) and drops one leading `_` from the name, so `_fbp` is `fbp`. Empty values and
+     * invalid encodings are skipped; the first remaining occurrence wins.
      */
     fun parseQuery(query: String): Map<String, String> {
         val result = LinkedHashMap<String, String>()
@@ -46,7 +56,7 @@ internal object ClickIdParser {
             val rawName = if (eq >= 0) pair.substring(0, eq) else pair
             val rawValue = if (eq >= 0) pair.substring(eq + 1) else ""
             val name = percentDecode(rawName) ?: continue
-            val id = identifierByParameter[name] ?: continue
+            val id = identifierByParameter[name.removePrefix("_")] ?: continue
             if (id in result) continue
             val value = percentDecode(rawValue) ?: continue
             if (value.isEmpty()) continue

@@ -503,6 +503,31 @@ class AnglerCoreTest {
 
     // sessions
 
+    @Test fun browserIdsFromALinkAreSentOnEveryLaterEvent() {
+        transport.defaultStatus = null
+        val core = makeCore()
+        core.configure(config(lifecycle = true))
+        core.waitUntilIdle()
+        referrer.answer(null)
+        val obs = observers.single()
+        obs.handleStart()
+        core.handleDeepLink("myapp://p/1?_fbp=fb.1.1700000000000.42&_ga=GA1.1.3.4&_fbc=fb.1.1700000000000.IwAR0abc")
+        core.track("product_viewed")
+        core.waitUntilIdle()
+        obs.handleStop()
+        clock.now += 7 * 86_400_000L
+        obs.handleStart()
+        core.track("product_viewed")
+        val e = core.queuedBodies().last()
+        assertNull("a new session", e["url"])
+        val ids = ids(e)
+        assertEquals("fb.1.1700000000000.42", ids["fbp"])
+        assertEquals("GA1.1.3.4", ids["ga"])
+        assertEquals("IwAR0abc", ids["fbclid"])
+        assertNull(ids["fbc"])
+        assertEquals(JsonValue.Str("fb.1.1700000000000.IwAR0abc"), e["fbc"])
+    }
+
     @Test fun foregroundAfter30MinStartsSessionAndClearsUrl() {
         transport.defaultStatus = null
         val core = makeCore()

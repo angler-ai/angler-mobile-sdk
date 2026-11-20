@@ -36,22 +36,35 @@ final class AttributionStore {
         self.clock = clock
     }
 
-    /// Stores each non-empty click ID with a fresh 400-day expiry, derives `fbc` from
-    /// `fbclid`, and sets the session URL when `url` is non-nil.
+    /// Stores each non-empty ID with a fresh 400-day expiry and sets the session URL when `url`
+    /// is non-nil. A valid `fbc` (the browser's `_fbc` cookie) becomes the `fbc` sent, and its
+    /// `fbclid` is stored with it; otherwise `fbc` is derived from a new `fbclid`.
     func capture(clickIds: [String: String], url: String?) {
         let now = clock.now().epochMillis
         var entries = liveEntries(now: now)
-        for (name, value) in clickIds where !value.isEmpty {
+        for (name, value) in clickIds where !value.isEmpty && name != "fbc" {
             entries[name] = Entry(value: value, capturedAtMs: now)
         }
+        let linkFbc = clickIds["fbc"].flatMap { fbc in Self.fbclid(inFbc: fbc).map { (fbc: fbc, fbclid: $0) } }
+        if let linkFbc { entries["fbclid"] = Entry(value: linkFbc.fbclid, capturedAtMs: now) }
         write(entries)
-        if let fbclid = clickIds["fbclid"], !fbclid.isEmpty, readFbc()?.fbclid != fbclid {
+        if let linkFbc {
+            writeFbc(FbcEntry(value: linkFbc.fbc, fbclid: linkFbc.fbclid, capturedAtMs: now))
+        } else if let fbclid = clickIds["fbclid"], !fbclid.isEmpty, readFbc()?.fbclid != fbclid {
             writeFbc(FbcEntry(value: "fb.1.\(now).\(fbclid)", fbclid: fbclid, capturedAtMs: now))
         }
         if let url, !url.isEmpty {
             store.set(url, for: Key.sessionURL)
             store.set(String(now), for: Key.sessionURLAt)
         }
+    }
+
+    /// The fbclid in an `fbc` value (`fb.<subdomain index>.<creation ms>.<fbclid>`), or nil if
+    /// the value isn't in that form.
+    static func fbclid(inFbc fbc: String) -> String? {
+        let parts = fbc.split(separator: ".", maxSplits: 3, omittingEmptySubsequences: false)
+        guard parts.count == 4, parts[0] == "fb", !parts[3].isEmpty else { return nil }
+        return String(parts[3])
     }
 
     func snapshot() -> AttributionSnapshot {

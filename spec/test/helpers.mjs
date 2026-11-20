@@ -5,7 +5,7 @@ import Ajv from 'ajv';
 
 const specDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-export const CLICK_ID_NAMES = ['gclid', 'gbraid', 'wbraid', 'gad_source', 'fbclid', 'ttclid', 'sccid', 'rdt_cid', 'epik'];
+export const CLICK_ID_NAMES = ['gclid', 'gbraid', 'wbraid', 'gad_source', 'fbclid', 'ttclid', 'sccid', 'rdt_cid', 'epik', 'fbp', 'fbc', 'ga', 'ttp', 'scid', 'pin_unauth', 'rdt_uuid'];
 
 export function loadFixture(name) {
   return JSON.parse(readFileSync(join(specDir, 'fixtures', `${name}.json`), 'utf8'));
