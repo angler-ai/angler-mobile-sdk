@@ -1,0 +1,81 @@
+name: Sync docs site
+
+# Copies site/mobile-sdk.md to the public docs (angler-ai/angler-docs, published by ReadMe) as
+# "Sending Data to Angler AI → Mobile SDK", and pushes it to the docs branch with a deploy key.
+# The page is reviewed here, in the PR that changes site/. See site/README.md.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/sync-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-docs
+  cancel-in-progress: false
+
+env:
+  DOCS_BRANCH: v1.0
+  SECTION: docs/Sending Data to Angler AI
+  SLUG: mobile-sdk
+  # The page is listed after this one in the section's _order.yaml (or last, if it's gone).
+  ORDER_AFTER: send-appsflyer-data-to-angler-via-push-api
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the deploy key
+        env:
+          KEY: ${{ secrets.ANGLER_DOCS_DEPLOY_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::error::Add the ANGLER_DOCS_DEPLOY_KEY secret (a write deploy key on angler-ai/angler-docs). See site/README.md."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          path: sdk
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: angler-ai/angler-docs
+          ref: ${{ env.DOCS_BRANCH }}
+          ssh-key: ${{ secrets.ANGLER_DOCS_DEPLOY_KEY }}
+          path: docs-site
+      - name: Copy the page, list it in its section, and push
+        working-directory: docs-site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Retried: ReadMe's own sync may push to the branch between our fetch and push.
+          for attempt in 1 2 3; do
+            cp "../sdk/site/$SLUG.md" "$SECTION/$SLUG.md"
+            order="$SECTION/_order.yaml"
+            if ! grep -qxF -- "- $SLUG" "$order"; then
+              if grep -qxF -- "- $ORDER_AFTER" "$order"; then
+                sed -i "/^- $ORDER_AFTER\$/a - $SLUG" "$order"
+              else
+                echo "- $SLUG" >> "$order"
+              fi
+            fi
+            if [ -z "$(git status --porcelain)" ]; then
+              echo "The docs already match site/; nothing to do."
+              exit 0
+            fi
+            git add -A
+            git commit -q -m "Sync the Mobile SDK page from $GITHUB_REPOSITORY@${GITHUB_SHA::7}"
+            if git push origin "HEAD:$DOCS_BRANCH"; then
+              echo "Pushed to $DOCS_BRANCH."
+              exit 0
+            fi
+            echo "Push rejected; refetching and trying again."
+            git fetch -q origin "$DOCS_BRANCH"
+            git reset -q --hard "origin/$DOCS_BRANCH"
+          done
+          echo "::error::Couldn't push to $DOCS_BRANCH after 3 attempts."
+          exit 1

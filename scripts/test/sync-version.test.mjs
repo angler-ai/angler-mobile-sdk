@@ -81,7 +81,7 @@ test('an invalid VERSION is rejected', () => {
 test('updates every install snippet in the READMEs, and --check flags a stale one', () => {
   const root = makeTree('2.0.0-rc.1');
   const readme = (v) =>
-    `implementation("ai.getangler:analytics:${v}")\n.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "${v}")\nangler_analytics: ^${v}\n`;
+    `implementation("ai.getangler:analytics:${v}")\n.package(url: "https://github.com/angler-ai/angler-mobile-sdk", exact: "${v}")\nangler_analytics: ^${v}\nnpm install @anglerai/react-native-analytics@${v}\n`;
   try {
     for (const path of Object.keys(FILES)) writeFileSync(join(root, path), FILES[path]('2.0.0-rc.1'));
     writeFileSync(join(root, 'README.md'), readme('0.1.0') + readme('0.1.0'));
@@ -92,6 +92,12 @@ test('updates every install snippet in the READMEs, and --check flags a stale on
     assert.equal(r.status, 0, r.stderr);
     assert.equal(readFileSync(join(root, 'README.md'), 'utf8'), readme('2.0.0-rc.1') + readme('2.0.0-rc.1'));
     assert.equal(run(root, '--check').status, 0);
+    // The docs-site page is kept in step too.
+    mkdirSync(join(root, 'site'), { recursive: true });
+    writeFileSync(join(root, 'site', 'mobile-sdk.md'), readme('0.1.0'));
+    assert.equal(run(root, '--check').status, 1);
+    assert.equal(run(root).status, 0);
+    assert.equal(readFileSync(join(root, 'site', 'mobile-sdk.md'), 'utf8'), readme('2.0.0-rc.1'));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

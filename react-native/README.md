@@ -17,7 +17,7 @@ For the list of events, what the SDK collects and how delivery works, see the
 ## Install
 
 ```sh
-npm install @anglerai/react-native-analytics
+npm install @anglerai/react-native-analytics@0.1.0-rc.4
 cd ios && pod install
 ```
 
