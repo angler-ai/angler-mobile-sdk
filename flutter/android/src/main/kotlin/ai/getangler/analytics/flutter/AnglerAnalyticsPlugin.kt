@@ -49,7 +49,15 @@ class AnglerAnalyticsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 "reset" -> Angler.reset()
                 "getClientId" -> {
                     // Channel replies go on the main thread; the core answers on its own.
-                    Angler.getClientId { id -> mainHandler.post { result.success(id) } }
+                    Angler.getClientId { id ->
+                        mainHandler.post {
+                            try {
+                                result.success(id)
+                            } catch (t: Throwable) {
+                                Log.e("Angler", "getClientId reply failed: $t")
+                            }
+                        }
+                    }
                     return
                 }
                 else -> return result.notImplemented()

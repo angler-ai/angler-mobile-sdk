@@ -150,6 +150,12 @@ test('getClientId resolves null when native has none or fails', async () => {
   await expect(Angler.getClientId()).resolves.toBeNull();
 });
 
+test('getClientId resolves null when the native build predates it', async () => {
+  delete (native as Partial<NativeMock>).getClientId;
+  await expect(Angler.getClientId()).resolves.toBeNull();
+  expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('not in this native build'), '');
+});
+
 test('getClientId resolves null when the native module is not linked', async () => {
   jest.resetModules();
   jest.doMock('../NativeAnglerAnalytics', () => ({ __esModule: true, default: null }));

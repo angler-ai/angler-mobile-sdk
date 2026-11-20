@@ -157,7 +157,13 @@ object Angler {
             }
             return
         }
-        c.getClientId { callback.onClientId(it) }
+        c.getClientId { id ->
+            try {
+                callback.onClientId(id)
+            } catch (t: Throwable) {
+                Log.error("getClientId callback failed: $t")
+            }
+        }
     }
 
     /** The `client_id` events are sent with; see the callback form of [getClientId]. */

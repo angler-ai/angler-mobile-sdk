@@ -169,6 +169,11 @@ export const Angler = {
       warn('native module AnglerAnalytics is not linked; is the app rebuilt with the New Architecture?');
       return null;
     }
+    // A JS update (e.g. over the air) can reach a native build older than this method.
+    if (typeof native.getClientId !== 'function') {
+      warn('getClientId is not in this native build; rebuild the app with this version of the SDK');
+      return null;
+    }
     try {
       return (await native.getClientId()) ?? null;
     } catch (e) {
