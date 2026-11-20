@@ -12,7 +12,7 @@ The library is on Maven Central:
 
 ```kotlin
 dependencies {
-    implementation("ai.getangler:analytics:0.1.0-rc.2")
+    implementation("ai.getangler:analytics:0.1.0-rc.3")
 }
 ```
 
